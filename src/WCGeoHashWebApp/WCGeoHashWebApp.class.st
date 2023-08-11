@@ -111,10 +111,18 @@ WCGeoHashWebApp >> start [
 			layers do: [ :aLayer | aLayer remove ].
 			layers removeAll.
 			(self componentNamed: #map) fitBounds: gh bounds.
-			layers add: ((self componentNamed: #map) addMarker: lon @ lat).
+			gh allNeighbours do: [ :aGh |
+				layers add: ((self componentNamed: #map)
+						 polygon: {
+								 aGh bounds topLeft.
+								 aGh bounds topRight.
+								 aGh bounds bottomRight.
+								 aGh bounds bottomLeft }
+						 with: { (#color -> #green) } asDictionary) ].
 			layers add: ((self componentNamed: #map) polygon: {
 						 gh bounds topLeft.
 						 gh bounds topRight.
 						 gh bounds bottomRight.
-						 gh bounds bottomLeft }) ]
+						 gh bounds bottomLeft }).
+			layers add: ((self componentNamed: #map) addMarker: lon @ lat) ]
 ]
