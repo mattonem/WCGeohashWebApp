@@ -34,11 +34,44 @@ WCGeoHashWebApp class >> generateHtmlUsing: html [
 	html div
 		class: 'container';
 		with: [
-			WCCOSMapWidget for: self on: html named: #map.
-			html textInput id: 'lon'.
-			html textInput id: 'lat'.
-			html button id: 'calculate'; with: 'calculate'.
-			html span id: 'result' ]
+			html div
+				class: 'card';
+				with: [
+					WCCOSMapWidget for: self on: html named: #map.
+					html div
+						class: 'card-body';
+						with: [
+							html div
+								class: 'form-floating';
+								with: [
+									html textInput
+										class: 'form-control';
+										id: 'lon'.
+									html label
+										for: 'lon';
+										with: 'Longitude'].
+									html div
+								class: 'form-floating';
+								with: [
+									html textInput
+										class: 'form-control';
+										id: 'lat'.
+									html label
+										for: 'lat';
+										with: 'Latitude'].
+									html div
+								class: 'form-floating';
+								with: [
+									html textInput
+										class: 'form-control';
+										id: 'precision'.
+									html label
+										for: 'precision';
+										with: 'Precision'].
+									html button
+										id: 'calculate';
+										with: 'calculate' ].
+							html span id: 'result' ] ] 
 ]
 
 { #category : #accessing }
@@ -64,20 +97,24 @@ WCGeoHashWebApp >> initialize [
 { #category : #'initialize-release' }
 WCGeoHashWebApp >> start [
 
-	| polygon |
+	| layers |
+	layers := OrderedCollection new.
 	(document getElementById: 'calculate')
 		addEventListener: #click
 		block: [
-			| lon lat gh |
+			| lon lat gh precision |
 			lon := (document getElementById: 'lon') value asNumber.
 			lat := (document getElementById: 'lat') value asNumber.
-			gh := WCGeoHash hashFor: lon @ lat precision: 5.
+			precision := (document getElementById: 'precision') value asNumber.
+			gh := WCGeoHash hashFor: lon @ lat precision: precision.
 			(document getElementById: 'result') innerHTML: gh stringAddress.
-			polygon ifNotNil: [  polygon remove ].
-			(self componentNamed: #map) setView: gh center.
-			polygon := (self componentNamed: #map) polygon: {
-					           gh bounds topLeft.
-					           gh bounds topRight.
-					           gh bounds bottomRight.
-					           gh bounds bottomLeft } ]
+			layers do: [ :aLayer | aLayer remove ].
+			layers removeAll.
+			(self componentNamed: #map) fitBounds: gh bounds.
+			layers add: ((self componentNamed: #map) addMarker: lon @ lat).
+			layers add: ((self componentNamed: #map) polygon: {
+						 gh bounds topLeft.
+						 gh bounds topRight.
+						 gh bounds bottomRight.
+						 gh bounds bottomLeft }) ]
 ]

@@ -228,6 +228,11 @@ WCGeoHash >> eastNeighbours [
 		     13 24 15 26 25 28 27 30 ] }
 ]
 
+{ #category : #'as yet unclassified' }
+WCGeoHash >> height [
+	^ self bounds height
+]
+
 { #category : #accessing }
 WCGeoHash >> maxByteValue [
 
