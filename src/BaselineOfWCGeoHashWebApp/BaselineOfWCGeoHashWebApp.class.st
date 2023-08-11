@@ -16,5 +16,7 @@ BaselineOfWCGeoHashWebApp >> baseline: spec [
 			baseline: 'PjHttpClient'
 			with: [ spec repository: 'github://mattonem/RestClientApp:master' ].
 		spec package: #WCGeoHash.
-		spec package: #WCGeoHashWebApp with: [ spec requires: #(Camping PJHttpClient WCGeoHash) ] ]
+		spec
+			package: #WCGeoHashWebApp
+			with: [ spec requires: #( Camping PjHttpClient WCGeoHash ) ] ]
 ]
