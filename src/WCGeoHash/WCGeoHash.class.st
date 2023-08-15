@@ -188,7 +188,8 @@ WCGeoHash >> byteAt: anInteger [
 
 { #category : #'as yet unclassified' }
 WCGeoHash >> center [
-^ (self bounds)  center
+	
+	^ self bounds topLeft + self bounds bottomRight / 2
 ]
 
 { #category : #'as yet unclassified' }

@@ -49,8 +49,8 @@ WCGeoHashWebApp class >> generateHtmlUsing: html [
 										id: 'lon'.
 									html label
 										for: 'lon';
-										with: 'Longitude'].
-									html div
+										with: 'Longitude' ].
+							html div
 								class: 'form-floating';
 								with: [
 									html textInput
@@ -58,20 +58,21 @@ WCGeoHashWebApp class >> generateHtmlUsing: html [
 										id: 'lat'.
 									html label
 										for: 'lat';
-										with: 'Latitude'].
-									html div
+										with: 'Latitude' ].
+							html div
 								class: 'form-floating';
 								with: [
 									html textInput
 										class: 'form-control';
+										value: 5;
 										id: 'precision'.
 									html label
 										for: 'precision';
-										with: 'Precision'].
-									html button
-										id: 'calculate';
-										with: 'calculate' ].
-							html span id: 'result' ] ] 
+										with: 'Precision' ].
+							html button
+								id: 'calculate';
+								with: 'calculate' ].
+					html span id: 'result' ] ]
 ]
 
 { #category : #accessing }
@@ -97,20 +98,21 @@ WCGeoHashWebApp >> initialize [
 { #category : #'initialize-release' }
 WCGeoHashWebApp >> start [
 
-	| layers |
+	| layers gh |
+	gh := WCGeoHash hashFor: 0 @ 0 precision: 5.
 	layers := OrderedCollection new.
-	(document getElementById: 'calculate')
-		addEventListener: #click
-		block: [
-			| lon lat gh precision |
-			lon := (document getElementById: 'lon') value asNumber.
-			lat := (document getElementById: 'lat') value asNumber.
+	(self componentNamed: #map)
+		on: #moveend
+		do: [ :e |
+			| lon lat precision |
+			lon := e target getCenter lng.
+			lat := e target getCenter lat.
+			console log: lat.
 			precision := (document getElementById: 'precision') value asNumber.
-			gh := WCGeoHash hashFor: lon @ lat precision: precision.
+			gh := WCGeoHash hashFor: lat @ lon precision: precision.
 			(document getElementById: 'result') innerHTML: gh stringAddress.
 			layers do: [ :aLayer | aLayer remove ].
 			layers removeAll.
-			(self componentNamed: #map) fitBounds: gh bounds.
 			gh allNeighbours do: [ :aGh |
 				layers add: ((self componentNamed: #map)
 						 polygon: {
@@ -124,5 +126,15 @@ WCGeoHashWebApp >> start [
 						 gh bounds topRight.
 						 gh bounds bottomRight.
 						 gh bounds bottomLeft }).
-			layers add: ((self componentNamed: #map) addMarker: lon @ lat) ]
+			layers add: ((self componentNamed: #map) addMarker: gh center).
+			(document getElementById: 'lon') value: lon.
+			(document getElementById: 'lat') value: lat  ].
+	(self componentNamed: #map) setView: 0 @ 0.
+	(document getElementById: 'calculate')
+		addEventListener: #click
+		block: [
+			| lon lat |
+			lon := (document getElementById: 'lon') value asNumber.
+			lat := (document getElementById: 'lat') value asNumber.
+			(self componentNamed: #map) setView: lat @ lon ]
 ]
