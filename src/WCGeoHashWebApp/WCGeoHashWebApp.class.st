@@ -46,6 +46,7 @@ WCGeoHashWebApp class >> generateHtmlUsing: html [
 								with: [
 									html textInput
 										class: 'form-control';
+										value: 0;
 										id: 'lon'.
 									html label
 										for: 'lon';
@@ -58,6 +59,7 @@ WCGeoHashWebApp class >> generateHtmlUsing: html [
 										id: 'lat'.
 									html label
 										for: 'lat';
+										value: 0;
 										with: 'Latitude' ].
 							html div
 								class: 'form-floating';
