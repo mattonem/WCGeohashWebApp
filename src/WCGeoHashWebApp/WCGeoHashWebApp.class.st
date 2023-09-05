@@ -73,8 +73,9 @@ WCGeoHashWebApp class >> generateHtmlUsing: html [
 										with: 'Precision' ].
 							html button
 								id: 'calculate';
-								with: 'calculate' ].
-					html span id: 'result' ] ]
+								with: 'calculate'.
+							html paragraph with: 'GeoHash address:'.
+							html span id: 'result' ] ] ]
 ]
 
 { #category : #accessing }
