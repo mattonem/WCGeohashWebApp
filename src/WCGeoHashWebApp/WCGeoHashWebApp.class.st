@@ -92,6 +92,12 @@ WCGeoHashWebApp class >> updateHtmlRoot: root [
 ]
 
 { #category : #'initialize-release' }
+WCGeoHashWebApp >> defaultCoordinates [
+
+	^ 48.85071003048404 @ 2.3634338378906254
+]
+
+{ #category : #'initialize-release' }
 WCGeoHashWebApp >> initialize [
 
 	super initialize.
@@ -131,8 +137,8 @@ WCGeoHashWebApp >> start [
 						 gh bounds bottomLeft }).
 			layers add: ((self componentNamed: #map) addMarker: gh center).
 			(document getElementById: 'lon') value: lon.
-			(document getElementById: 'lat') value: lat  ].
-	(self componentNamed: #map) setView: 0 @ 0.
+			(document getElementById: 'lat') value: lat ].
+	(self componentNamed: #map) setView: self defaultCoordinates.
 	(document getElementById: 'calculate')
 		addEventListener: #click
 		block: [
