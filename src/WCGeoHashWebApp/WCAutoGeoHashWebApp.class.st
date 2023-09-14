@@ -61,16 +61,9 @@ WCAutoGeoHashWebApp class >> generateHtmlUsing: html [
 									html label
 										for: 'lat';
 										with: 'Latitude' ].
-							html div
-								class: 'form-floating';
-								with: [
-									html textInput
-										class: 'form-control';
-										value: 5;
-										id: 'precision'.
-									html label
-										for: 'precision';
-										with: 'Precision' ].
+							html button
+								id: 'goTo';
+								with: 'Go to'.
 							html button
 								id: 'calculate';
 								with: 'calculate'.
@@ -110,7 +103,11 @@ WCAutoGeoHashWebApp >> start [
 	| layers ghs |
 	layers := OrderedCollection new.
 
-
+	(document getElementById: 'goTo') addEventListener: #click block: [
+		| lon lat |
+		lon := (document getElementById: 'lon') value asNumber.
+		lat := (document getElementById: 'lat') value asNumber.
+		(self componentNamed: #map) setView: lat @ lon ].
 	(document getElementById: 'calculate')
 		addEventListener: #click
 		block: [ :e |
@@ -143,13 +140,29 @@ WCAutoGeoHashWebApp >> start [
 									 aRect bottomRight.
 									 aRect bottomLeft }
 							 with: { (#color -> #green) } asDictionary) ] ].
-			ghs do: [:gh | 		layers add: ((self componentNamed: #map) polygon: {
-						 gh bounds topLeft.
-						 gh bounds topRight.
-						 gh bounds bottomRight.
-						 gh bounds bottomLeft }).
-			layers add: ((self componentNamed: #map) addMarker: gh center).].
+			ghs do: [ :gh |
+				layers add: ((self componentNamed: #map) polygon: {
+							 gh bounds topLeft.
+							 gh bounds topRight.
+							 gh bounds bottomRight.
+							 gh bounds bottomLeft }).
+				layers add: ((self componentNamed: #map) addMarker: gh center) ].
 			(document getElementById: 'lon') value: lon.
 			(document getElementById: 'lat') value: lat ].
+	(self componentNamed: #map)
+		on: #moveend
+		do: [ :e |
+			| lon lat offset |
+			lon := e target getCenter lng.
+			offset := 0.
+			[ lon > 180 ] whileTrue: [
+				offset := offset + 1.
+				lon := lon - 360 ].
+			[ lon < -180 ] whileTrue: [
+				offset := offset - 1.
+				lon := lon + 360 ].
+			lat := e target getCenter lat.
+			(document getElementById: 'lon') value: lon.
+			(document getElementById: 'lat') value: lat  ].
 	(self componentNamed: #map) setView: self defaultCoordinates
 ]
