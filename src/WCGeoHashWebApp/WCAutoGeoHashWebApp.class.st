@@ -61,12 +61,18 @@ WCAutoGeoHashWebApp class >> generateHtmlUsing: html [
 									html label
 										for: 'lat';
 										with: 'Latitude' ].
-							html button
+							html div
+								class: 'mb-3';
+								with: [html button
+								class: 'btn btn-primary';
 								id: 'goTo';
-								with: 'Go to'.
-							html button
+								with: 'Go to'].
+							html div
+								class: 'mb-3';
+								with: [html button
+								class: 'btn btn-primary';
 								id: 'calculate';
-								with: 'calculate'.
+								with: 'calculate'].
 							html paragraph with: 'GeoHash address:'.
 							html span id: 'result' ] ] ]
 ]
