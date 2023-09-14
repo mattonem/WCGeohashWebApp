@@ -146,6 +146,12 @@ WCGeoHash class >> northDirection [
 ]
 
 { #category : #'as yet unclassified' }
+WCGeoHash >> = anOtherObject [
+
+	^ self class = anOtherObject class and: [ byteArray = anOtherObject byteArray ]
+]
+
+{ #category : #'as yet unclassified' }
 WCGeoHash >> adjacentWithBorder: borders andNeighbours: neighbours [
 
 	| parent |
@@ -283,6 +289,11 @@ WCGeoHash >> eastNeighbours [
 		     18 19 24 25 22 23 28 29 ].
 		  #[ 21 0 23 2 1 4 3 6 29 8 31 10 9 12 11 14 5 16 7 18 17 20 19 22
 		     13 24 15 26 25 28 27 30 ] }
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHash >> hash [
+	^ byteArray hash
 ]
 
 { #category : #'as yet unclassified' }

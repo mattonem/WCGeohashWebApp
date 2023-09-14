@@ -64,6 +64,16 @@ WCGeoHashTest >> testEncode [
 	self assert: (WCGeoHash hashOf: (48.669@(-4.329)) precision: 5) equals: 'gbsuv'.
 ]
 
+{ #category : #test }
+WCGeoHashTest >> testEquals [
+
+	| gh1 gh2 |
+	gh1 := WCGeoHash hashFor: 9.9996 @ -4.329 precision: 7.
+	gh2 := WCGeoHash hashFor: 9.9996 @ -4.3294 precision: 7.
+	self assert: gh1 equals: gh2.
+	self assert: gh1 hash equals: gh1 hash .
+]
+
 { #category : #tests }
 WCGeoHashTest >> testInstance [
 
