@@ -1,5 +1,5 @@
 Class {
-	#name : #WCGeoHashWebApp,
+	#name : #WCAutoGeoHashWebApp,
 	#superclass : #PjFileBasedWebApp,
 	#traits : 'StaticComponentHolder',
 	#classTraits : 'StaticComponentHolder classTrait',
@@ -7,28 +7,28 @@ Class {
 }
 
 { #category : #accessing }
-WCGeoHashWebApp class >> appClasses [
+WCAutoGeoHashWebApp class >> appClasses [
 
 	<pharoJsSkip>
 	^ super appClasses , { WCCOSMapWidget  }
 ]
 
 { #category : #accessing }
-WCGeoHashWebApp class >> bridgeClientClass [
+WCAutoGeoHashWebApp class >> bridgeClientClass [
 
 	<pharoJsSkip>
 	^ PjZnHostedBrowserBridgeClient
 ]
 
 { #category : #accessing }
-WCGeoHashWebApp class >> exporterClass [
+WCAutoGeoHashWebApp class >> exporterClass [
 
 	<pharoJsSkip>
 	^ PjFileExporterWithIndexHtml
 ]
 
 { #category : #accessing }
-WCGeoHashWebApp class >> generateHtmlUsing: html [
+WCAutoGeoHashWebApp class >> generateHtmlUsing: html [
 
 	<pharoJsSkip>
 	html div
@@ -79,7 +79,7 @@ WCGeoHashWebApp class >> generateHtmlUsing: html [
 ]
 
 { #category : #accessing }
-WCGeoHashWebApp class >> updateHtmlRoot: root [
+WCAutoGeoHashWebApp class >> updateHtmlRoot: root [
 
 	<pharoJsSkip>
 	root language: 'en'.
@@ -92,69 +92,64 @@ WCGeoHashWebApp class >> updateHtmlRoot: root [
 ]
 
 { #category : #'initialize-release' }
-WCGeoHashWebApp >> defaultCoordinates [
+WCAutoGeoHashWebApp >> defaultCoordinates [
 
 	^ 48.85071003048404 @ 2.3634338378906254
 ]
 
 { #category : #'initialize-release' }
-WCGeoHashWebApp >> initialize [
+WCAutoGeoHashWebApp >> initialize [
 
 	super initialize.
 	self initializeComponentHolder
 ]
 
 { #category : #'initialize-release' }
-WCGeoHashWebApp >> start [
+WCAutoGeoHashWebApp >> start [
 
-	| layers gh |
-	gh := WCGeoHash hashFor: 0 @ 0 precision: 5.
+	| layers ghs |
 	layers := OrderedCollection new.
-	(self componentNamed: #map)
-		on: #moveend
-		do: [ :e |
-			| lon lat precision offset bounds |
-			lon := e target getCenter lng.
-			offset := 0.
-			[ lon > 180 ] whileTrue: [
-				offset := offset + 1.
-				lon := lon - 360 ].
-			[ lon < -180 ] whileTrue: [
-				offset := offset - 1.
-				lon := lon + 360 ].
-			lat := e target getCenter lat.
-			precision := (document getElementById: 'precision') value asNumber.
-			gh := WCGeoHash hashFor: lat @ lon precision: precision.
-			(document getElementById: 'result') innerHTML: gh stringAddress.
-			layers do: [ :aLayer | aLayer remove ].
-			layers removeAll.
-			gh allNeighbours do: [ :aGh |
-				| b |
-				b := aGh bounds translateBy: 0 @ (360 * offset).
-				layers add: ((self componentNamed: #map)
-						 polygon: {
-								 b topLeft.
-								 b topRight.
-								 b bottomRight.
-								 b bottomLeft }
-						 with: { (#color -> #green) } asDictionary) ].
 
-			bounds := gh bounds translateBy: 0 @ (360 * offset).
-			layers add: ((self componentNamed: #map) polygon: {
-						 bounds topLeft.
-						 bounds topRight.
-						 bounds bottomRight.
-						 bounds bottomLeft }).
-			layers add: ((self componentNamed: #map) addMarker:
-					 (gh center translateBy: 0 @ (360 * offset))).
-			(document getElementById: 'lon') value: lon.
-			(document getElementById: 'lat') value: lat ].
-	(self componentNamed: #map) setView: self defaultCoordinates.
+
 	(document getElementById: 'calculate')
 		addEventListener: #click
-		block: [
-			| lon lat |
-			lon := (document getElementById: 'lon') value asNumber.
-			lat := (document getElementById: 'lat') value asNumber.
-			(self componentNamed: #map) setView: lat @ lon ]
+		block: [ :e |
+			| lon lat region regions adresses |
+			region := (self componentNamed: #map) getBounds.
+			lon := (self componentNamed: #map) getCenter lng.
+			lat := (self componentNamed: #map) getCenter lat.
+			adresses := ''.
+			region := (self componentNamed: #map) getBounds.
+			regions := WCGeoHash divideRegion: region.
+
+
+			console log: region.
+			ghs := WCGeoHash
+				       hashesFor: lat @ lon
+				       coverRegion: region
+				       precision: 7.
+			ghs do: [ :aGh | adresses := adresses , ' ' , aGh stringAddress ].
+
+			(document getElementById: 'result') innerHTML: adresses.
+			layers do: [ :aLayer | aLayer remove ].
+			layers removeAll.
+
+			regions do: [ :aRow |
+				aRow do: [ :aRect |
+					layers add: ((self componentNamed: #map)
+							 polygon: {
+									 aRect topLeft.
+									 aRect topRight.
+									 aRect bottomRight.
+									 aRect bottomLeft }
+							 with: { (#color -> #green) } asDictionary) ] ].
+			ghs do: [:gh | 		layers add: ((self componentNamed: #map) polygon: {
+						 gh bounds topLeft.
+						 gh bounds topRight.
+						 gh bounds bottomRight.
+						 gh bounds bottomLeft }).
+			layers add: ((self componentNamed: #map) addMarker: gh center).].
+			(document getElementById: 'lon') value: lon.
+			(document getElementById: 'lat') value: lat ].
+	(self componentNamed: #map) setView: self defaultCoordinates
 ]

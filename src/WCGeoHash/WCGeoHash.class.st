@@ -13,6 +13,24 @@ WCGeoHash class >> characterList [
 ]
 
 { #category : #'as yet unclassified' }
+WCGeoHash class >> divideRegion: aRect [
+
+	| result |
+	result := Array
+		          with: (Array new: 3)
+		          with: (Array new: 3)
+		          with: (Array new: 3).
+	0 to: 2 do: [ :i |
+		0 to: 2 do: [ :j |
+			(result at: i + 1) at: j + 1 put: (Rectangle
+					 origin: aRect origin x + (i * aRect width / 3)
+						 @ (aRect origin y + (j * aRect height / 3))
+					 corner: aRect origin x + (i + 1 * aRect width / 3)
+						 @ (aRect origin y + (j + 1 * aRect height / 3))) ] ].
+	^ result
+]
+
+{ #category : #'as yet unclassified' }
 WCGeoHash class >> fromByteArray: aByteArray [
 
 	^ self new
@@ -36,6 +54,21 @@ WCGeoHash class >> fromString: aString [
 		  byteArray: (aString asOrderedCollection collect: [ :aCharacter |
 					   (self characterList indexOf: aCharacter) - 1 ]);
 		  yourself
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHash class >> hashFor: coord coverRegion: aRectangle precision: anInteger [
+
+	| gh |
+	anInteger = 0 ifTrue: [ ^ self hashFor: coord precision: anInteger. ].
+	gh := self hashFor: coord precision: anInteger.
+	^ (gh coverRegion: aRectangle)
+		  ifTrue: [ gh ]
+		  ifFalse: [
+			  ^ self
+				    hashFor: coord
+				    coverRegion: aRectangle
+				    precision: anInteger - 1 ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -89,6 +122,22 @@ WCGeoHash class >> hashFor: coordinate precision: precision [
 WCGeoHash class >> hashOf: coordinate precision: precision [
 
 	^ (self hashFor: coordinate precision: precision) stringAddress
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHash class >> hashesFor: coord coverRegion: region precision: precision [
+
+	| central result regions |
+	regions := self divideRegion: region.
+	central := self
+		           hashFor: coord
+		           coverRegion: ((regions at: 2) at: 2)
+		           precision: precision.
+
+	result := OrderedCollection with: central.
+	central allNeighbours do: [ :aGh| (aGh intersects: region) ifTrue: [ result add: aGh ] ].
+
+	^ result
 ]
 
 { #category : #'as yet unclassified' }
@@ -198,6 +247,13 @@ WCGeoHash >> characterFor: anInteger [
 ]
 
 { #category : #'as yet unclassified' }
+WCGeoHash >> coverRegion: aRectangle [
+
+	^ (self point: aRectangle origin greaterThan: self bounds origin) and: [ 
+		(self point: aRectangle corner lesserThan: self bounds corner) ]
+]
+
+{ #category : #'as yet unclassified' }
 WCGeoHash >> east [
 
 	byteArray ifEmpty: [ ^ self ].
@@ -232,6 +288,23 @@ WCGeoHash >> eastNeighbours [
 { #category : #'as yet unclassified' }
 WCGeoHash >> height [
 	^ self bounds height
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHash >> intersects: aRectangle [
+	"Answer whether aRectangle intersects the receiver anywhere."
+
+	"Optimized; old code answered:
+		(origin max: aRectangle origin) < (corner min: aRectangle corner)"
+
+	| rOrigin rCorner |
+	rOrigin := aRectangle origin.
+	rCorner := aRectangle corner.
+	rCorner x <= self bounds origin x ifTrue: [ ^ false ].
+	rCorner y <= self bounds origin y ifTrue: [ ^ false ].
+	rOrigin x >= self bounds corner x ifTrue: [ ^ false ].
+	rOrigin y >= self bounds corner y ifTrue: [ ^ false ].
+	^ true
 ]
 
 { #category : #accessing }
@@ -272,6 +345,17 @@ WCGeoHash >> northNeighbours [
 { #category : #accessing }
 WCGeoHash >> parent [
 	^ self class fromByteArray: byteArray allButLast 
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHash >> point: aPoint greaterThan: anotherPoint [
+	^ aPoint x >= anotherPoint x and: [ aPoint y >= anotherPoint y ]
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHash >> point: aPoint lesserThan: anotherPoint [
+
+	^ aPoint x <= anotherPoint x and: [ aPoint y <= anotherPoint y ]
 ]
 
 { #category : #constants }
@@ -320,9 +404,7 @@ WCGeoHash >> southNeighbours [
 { #category : #'as yet unclassified' }
 WCGeoHash >> stringAddress [
 
-	^ String
-		  new: self precision
-		  streamContents: [ :s |
+	^ String new: self precision streamContents: [ :s |
 		  byteArray do: [ :aByte | s nextPut: (self characterFor: aByte) ] ]
 ]
 
