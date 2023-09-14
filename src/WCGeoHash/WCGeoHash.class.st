@@ -8,6 +8,11 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+WCGeoHash class >> areaOfRect: aRect [
+	^ aRect width * aRect height
+]
+
+{ #category : #'as yet unclassified' }
 WCGeoHash class >> characterList [
 	^ '0123456789bcdefghjkmnpqrstuvwxyz'
 ]
@@ -127,15 +132,25 @@ WCGeoHash class >> hashOf: coordinate precision: precision [
 { #category : #'as yet unclassified' }
 WCGeoHash class >> hashesFor: coord coverRegion: region precision: precision [
 
-	| central result regions |
+	| central result regions toBeAdded |
 	regions := self divideRegion: region.
 	central := self
 		           hashFor: coord
 		           coverRegion: ((regions at: 2) at: 2)
 		           precision: precision.
-
-	result := OrderedCollection with: central.
-	central allNeighbours do: [ :aGh| (aGh intersects: region) ifTrue: [ result add: aGh ] ].
+	[ central area > (self areaOfRect: region) ] whileTrue: [
+		central := self hashFor: coord precision: central precision + 1 ].
+	(central precision = 0) ifTrue: [^ Set with: central].
+	result := Set new.
+	toBeAdded := Set with: central.
+	[
+	result addAll: toBeAdded.
+	toBeAdded isEmpty ] whileFalse: [
+		toBeAdded := Set new.
+		result do: [ :gh |
+			gh allNeighbours do: [ :aGh |
+				(result includes: aGh) ifFalse: [
+					(aGh intersects: region) ifTrue: [ toBeAdded add: aGh ] ] ] ] ].
 
 	^ result
 ]
@@ -179,6 +194,11 @@ WCGeoHash >> allNeighbours [
 	result add: (temp := temp north).
 	result add: (temp := temp north).
 	^ result
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHash >> area [
+	^ self bounds width * self bounds height
 ]
 
 { #category : #accessing }
