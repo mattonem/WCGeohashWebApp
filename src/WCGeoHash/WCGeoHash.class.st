@@ -183,16 +183,21 @@ WCGeoHash >> adjacentWithBorder: borders andNeighbours: neighbours [
 WCGeoHash >> allNeighbours [
 
 	| temp result |
-	temp := self.
 	result := OrderedCollection new.
-	result add: (temp := temp north).
-	result add: (temp := temp east).
-	result add: (temp := temp south).
-	result add: (temp := temp south).
-	result add: (temp := temp west).
-	result add: (temp := temp west).
-	result add: (temp := temp north).
-	result add: (temp := temp north).
+	[
+	result add: (temp := self north).
+	result add: temp east.
+	result add: temp west ]
+		on: Error
+		do: [  ].
+	[
+	result add: (temp := self south).
+	result add: temp east.
+	result add: temp west ]
+		on: Error
+		do: [  ].
+	result add: self east.
+	result add: self west.
 	^ result
 ]
 
