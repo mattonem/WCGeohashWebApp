@@ -10,7 +10,7 @@ Class {
 WCAutoGeoHashWebApp class >> appClasses [
 
 	<pharoJsSkip>
-	^ super appClasses , { WCCOSMapWidget  }
+	^ super appClasses , { WCCMap  }
 ]
 
 { #category : #accessing }
@@ -37,7 +37,7 @@ WCAutoGeoHashWebApp class >> generateHtmlUsing: html [
 			html div
 				class: 'card';
 				with: [
-					WCCOSMapWidget for: self on: html named: #map.
+					WCCMap for: self on: html named: #map.
 					html div
 						class: 'card-body';
 						with: [
