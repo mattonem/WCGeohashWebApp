@@ -53,6 +53,28 @@ WCGeoHash class >> fromString: aString [
 ]
 
 { #category : #'as yet unclassified' }
+WCGeoHash class >> getRegionCenter: aRegion [
+	"Answer the point at the center of the receiver."
+
+	^ aRegion topLeft + aRegion bottomRight / 2
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHash class >> hashCoverRegion: aRectangle precision: anInteger [
+
+	| gh |
+	anInteger = 0 ifTrue: [ ^ self hashFor: (self getRegionCenter: aRectangle) precision: anInteger ].
+	gh := self hashFor: (self getRegionCenter: aRectangle) precision: anInteger.
+	^ (gh coverRegion: aRectangle)
+		  ifTrue: [ gh ]
+		  ifFalse: [
+			  ^ self
+				    hashFor: (self getRegionCenter: aRectangle)
+				    coverRegion: aRectangle
+				    precision: anInteger - 1 ]
+]
+
+{ #category : #'as yet unclassified' }
 WCGeoHash class >> hashFor: coord coverRegion: aRectangle precision: anInteger [
 
 	| gh |
@@ -118,6 +140,31 @@ WCGeoHash class >> hashFor: coordinate precision: precision [
 WCGeoHash class >> hashOf: coordinate precision: precision [
 
 	^ (self hashFor: coordinate precision: precision) stringAddress
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHash class >> hashesCoverRegion: region precision: precision [
+
+	| central result regions toBeAdded |
+	regions := self divideRegion: region.
+	central := self
+		           hashCoverRegion: ((regions at: 2) at: 2)
+		           precision: precision.
+	[ central area > (self areaOfRect: region) ] whileTrue: [
+		central := self hashFor: (self getRegionCenter: ((regions at: 2) at: 2))  precision: central precision + 1 ].
+	central precision = 0 ifTrue: [ ^ Set with: central ].
+	result := Set new.
+	toBeAdded := Set with: central.
+	[
+	result addAll: toBeAdded.
+	toBeAdded isEmpty ] whileFalse: [
+		toBeAdded := Set new.
+		result do: [ :gh |
+			gh allNeighbours do: [ :aGh |
+				(result includes: aGh) ifFalse: [
+					(aGh intersects: region) ifTrue: [ toBeAdded add: aGh ] ] ] ] ].
+
+	^ result
 ]
 
 { #category : #'as yet unclassified' }

@@ -136,3 +136,20 @@ WCGeoHashTest >> testWest [
 	self assert: gh west precision equals: gh precision.
 	self assert: gh west stringAddress equals: 'gbsuu'
 ]
+
+{ #category : #test }
+WCGeoHashTest >> testhashesCoverRegion [
+
+	| region ghs expectedAddresses actualAddresses |
+	region := Rectangle
+		          origin: 48.833763586380556 @ 2.2523689270019536
+		          corner: 48.86765074082236 @ 2.474498748779297.
+	ghs := WCGeoHash hashesCoverRegion: region precision: 7.
+
+	self assert: ghs size equals: 12.
+
+	expectedAddresses := #( u09tv u09wj u09wn u09wh u09ty u09tu u09tz
+	                        u09wp u09tg u09w5 u09y0 u09vb ) asSet.
+	actualAddresses := ghs collect: #stringAddress as: Set.
+	self assert: actualAddresses equals: expectedAddresses
+]

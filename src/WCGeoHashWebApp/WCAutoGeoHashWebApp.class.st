@@ -124,13 +124,8 @@ WCAutoGeoHashWebApp >> start [
 			adresses := ''.
 			region := (self componentNamed: #map) getBounds.
 			regions := WCGeoHash divideRegion: region.
-
-
 			console log: region.
-			ghs := WCGeoHash
-				       hashesFor: lat @ lon
-				       coverRegion: region
-				       precision: 7.
+			ghs := WCGeoHash hashesCoverRegion: region precision: 7.
 			ghs do: [ :aGh | adresses := adresses , ' ' , aGh stringAddress ].
 
 			(document getElementById: 'result') innerHTML: adresses.
@@ -169,6 +164,6 @@ WCAutoGeoHashWebApp >> start [
 				lon := lon + 360 ].
 			lat := e target getCenter lat.
 			(document getElementById: 'lon') value: lon.
-			(document getElementById: 'lat') value: lat  ].
+			(document getElementById: 'lat') value: lat ].
 	(self componentNamed: #map) setView: self defaultCoordinates
 ]
