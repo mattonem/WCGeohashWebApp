@@ -63,29 +63,18 @@ WCGeoHash class >> getRegionCenter: aRegion [
 WCGeoHash class >> hashCoverRegion: aRectangle precision: anInteger [
 
 	| gh |
-	anInteger = 0 ifTrue: [ ^ self hashFor: (self getRegionCenter: aRectangle) precision: anInteger ].
-	gh := self hashFor: (self getRegionCenter: aRectangle) precision: anInteger.
+	anInteger = 0 ifTrue: [
+		^ self
+			  hashFor: (self getRegionCenter: aRectangle)
+			  precision: anInteger ].
+	gh := self
+		      hashFor: (self getRegionCenter: aRectangle)
+		      precision: anInteger.
 	^ (gh coverRegion: aRectangle)
 		  ifTrue: [ gh ]
 		  ifFalse: [
 			  ^ self
-				    hashFor: (self getRegionCenter: aRectangle)
-				    coverRegion: aRectangle
-				    precision: anInteger - 1 ]
-]
-
-{ #category : #'as yet unclassified' }
-WCGeoHash class >> hashFor: coord coverRegion: aRectangle precision: anInteger [
-
-	| gh |
-	anInteger = 0 ifTrue: [ ^ self hashFor: coord precision: anInteger. ].
-	gh := self hashFor: coord precision: anInteger.
-	^ (gh coverRegion: aRectangle)
-		  ifTrue: [ gh ]
-		  ifFalse: [
-			  ^ self
-				    hashFor: coord
-				    coverRegion: aRectangle
+				    hashCoverRegion: aRectangle
 				    precision: anInteger - 1 ]
 ]
 
@@ -153,32 +142,6 @@ WCGeoHash class >> hashesCoverRegion: region precision: precision [
 	[ central area > (self areaOfRect: region) ] whileTrue: [
 		central := self hashFor: (self getRegionCenter: ((regions at: 2) at: 2))  precision: central precision + 1 ].
 	central precision = 0 ifTrue: [ ^ Set with: central ].
-	result := Set new.
-	toBeAdded := Set with: central.
-	[
-	result addAll: toBeAdded.
-	toBeAdded isEmpty ] whileFalse: [
-		toBeAdded := Set new.
-		result do: [ :gh |
-			gh allNeighbours do: [ :aGh |
-				(result includes: aGh) ifFalse: [
-					(aGh intersects: region) ifTrue: [ toBeAdded add: aGh ] ] ] ] ].
-
-	^ result
-]
-
-{ #category : #'as yet unclassified' }
-WCGeoHash class >> hashesFor: coord coverRegion: region precision: precision [
-
-	| central result regions toBeAdded |
-	regions := self divideRegion: region.
-	central := self
-		           hashFor: coord
-		           coverRegion: ((regions at: 2) at: 2)
-		           precision: precision.
-	[ central area > (self areaOfRect: region) ] whileTrue: [
-		central := self hashFor: coord precision: central precision + 1 ].
-	(central precision = 0) ifTrue: [^ Set with: central].
 	result := Set new.
 	toBeAdded := Set with: central.
 	[
