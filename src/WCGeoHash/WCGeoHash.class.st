@@ -43,15 +43,6 @@ WCGeoHash class >> fromByteArray: aByteArray [
 		  yourself
 ]
 
-{ #category : #'as yet unclassified' }
-WCGeoHash class >> fromInteger: anInteger precision: aPrecision [
-
-	^ self new
-		  integer: anInteger;
-		  precision: aPrecision;
-		  yourself
-]
-
 { #category : #'instance creation' }
 WCGeoHash class >> fromString: aString [
 
@@ -403,7 +394,7 @@ WCGeoHash >> precision [
 { #category : #'as yet unclassified' }
 WCGeoHash >> printOn: stream [
 
-	<ingnoreForCoverage>
+	<ignoreForCoverage>
 	super printOn: stream.
 	stream nextPut: $(.
 	self stringAddress printOn: stream.

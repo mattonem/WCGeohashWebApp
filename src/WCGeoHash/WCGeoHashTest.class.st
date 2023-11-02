@@ -29,6 +29,13 @@ WCGeoHashTest >> testAllNeighbours [
 ]
 
 { #category : #test }
+WCGeoHashTest >> testArea [
+
+	self assert: (WCGeoHash hashFor: 9.9996 @ -4.329 precision: 7) area
+		< (WCGeoHash hashFor: 9.9996 @ -4.329 precision: 6) area
+]
+
+{ #category : #test }
 WCGeoHashTest >> testBounds [
 
 	| gh |
