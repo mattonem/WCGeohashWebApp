@@ -65,12 +65,6 @@ WCGeoHashDB >> removeFromIndex: aString geoHash: aWCGeoHash [
 ]
 
 { #category : #accessing }
-WCGeoHashDB >> rootFolder [
-
-	^ rootFolder
-]
-
-{ #category : #accessing }
 WCGeoHashDB >> rootFolder: anObject [
 
 	rootFolder := anObject
