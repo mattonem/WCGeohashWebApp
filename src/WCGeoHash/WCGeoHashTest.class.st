@@ -52,6 +52,14 @@ WCGeoHashTest >> testBounds [
 ]
 
 { #category : #test }
+WCGeoHashTest >> testCenter [
+
+	| gh |
+	gh := WCGeoHash fromString: 's0000'.
+	self assert: gh center closeTo: 0.0 @ 0.0 precision: 0.1
+]
+
+{ #category : #test }
 WCGeoHashTest >> testEast [
 
 	| gh |

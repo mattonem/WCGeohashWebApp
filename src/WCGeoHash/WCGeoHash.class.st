@@ -157,11 +157,6 @@ WCGeoHash class >> hashesCoverRegion: region precision: precision [
 ]
 
 { #category : #'as yet unclassified' }
-WCGeoHash class >> northDirection [
-	^ 0
-]
-
-{ #category : #'as yet unclassified' }
 WCGeoHash >> = anOtherObject [
 
 	^ self class = anOtherObject class and: [ byteArray = anOtherObject byteArray ]
@@ -236,15 +231,6 @@ WCGeoHash >> bounds [
 			evenBit := evenBit not ] ].
 
 	^ Rectangle origin: latMin @ lonMin corner: latMax @ lonMax
-]
-
-{ #category : #'as yet unclassified' }
-WCGeoHash >> byteArayToString [
-
-	^ String streamContents: [ :s |
-		  s << '#['.
-		  byteArray do: [ :el | el printOn: s ] separatedBy: [ s << ' ' ].
-		  s << ']' ]
 ]
 
 { #category : #accessing }
