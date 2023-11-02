@@ -12,7 +12,7 @@ SmalltalkCISpec {
   #testing : { 
     #categories : [ 'WCGeoHashWebApp.*', 'WCGeoHash.*' ],
     #coverage : {
-      #packages : [ 'WCGeoHashWebApp.*', 'WCGeoHash.*' ],
+      #packages : [ 'WCGeoHashWebApp.*', 'WCGeoHash.*' ]
     }
   }
 }
