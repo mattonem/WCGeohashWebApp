@@ -77,6 +77,13 @@ WCGeoHashDB >> rootFolder: anObject [
 ]
 
 { #category : #writing }
+WCGeoHashDB >> update: anObject id: aString2 [ 
+	| aWCGeoHash |
+	aWCGeoHash := self addressOfId: aString2.
+	self writeObject: anObject id: aString2 geoHash: aWCGeoHash.
+]
+
+{ #category : #writing }
 WCGeoHashDB >> write: anObject id: aString2 geoHash: aWCGeoHash [
 
 	self writeObject: anObject id: aString2 geoHash: aWCGeoHash.

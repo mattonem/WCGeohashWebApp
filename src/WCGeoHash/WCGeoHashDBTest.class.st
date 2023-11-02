@@ -32,6 +32,16 @@ WCGeoHashDBTest >> testDeleteId [
 ]
 
 { #category : #test }
+WCGeoHashDBTest >> testUpdateId [
+
+	| gh |
+	gh := WCGeoHash hashFor: 9.9996 @ -4.329 precision: 7.
+	db write: 'Random stuff' id: '123' geoHash: gh.
+	db update: 'Random other stuff' id: '123'.
+	self assert: (db getObjectAtId: '123') equals: 'Random other stuff'.
+]
+
+{ #category : #test }
 WCGeoHashDBTest >> testWriteIdGeoHash [
 
 	| gh |
