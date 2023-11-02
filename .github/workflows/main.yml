@@ -19,12 +19,14 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v2
       - uses: hpi-swa/setup-smalltalkCI@v1
         id: smalltalkci
+        
         with:
           smalltalk-image: 'Pharo64-11'
       - run: smalltalkci -s ${{ steps.smalltalkci.outputs.smalltalk-image }}
