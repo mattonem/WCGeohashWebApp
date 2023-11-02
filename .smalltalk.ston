@@ -10,9 +10,9 @@ SmalltalkCISpec {
     'scripts/exportApp.st'
   ],
   #testing : { 
-    #categories : [ 'WCGeoHashWebApp.*', 'WCGeoHash.*' ],
+    #categories : [ 'WCGeoHash-Tests' ],
     #coverage : {
-      #packages : [ 'WCGeoHashWebApp.*', 'WCGeoHash.*' ]
+      #packages : [ 'WCGeoHash' ]
     }
   }
 }
