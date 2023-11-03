@@ -199,7 +199,8 @@ WCGeoHash >> allNeighbours [
 
 { #category : #'as yet unclassified' }
 WCGeoHash >> area [
-	^ self bounds width * self bounds height
+
+	^ self width * self height
 ]
 
 { #category : #accessing }
@@ -465,4 +466,10 @@ WCGeoHash >> westNeighbours [
 		     26 27 16 17 30 31 20 21 ].
 		  #[ 1 4 3 6 5 16 7 18 9 12 11 14 13 24 15 26 17 20 19 22 21 0 23 2
 		     25 28 27 30 29 8 31 10 ] }
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHash >> width [
+
+	^ self bounds width
 ]
