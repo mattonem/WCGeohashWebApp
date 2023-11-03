@@ -31,6 +31,13 @@ WCGeoHashHttpRetriverTest >> setUp [
 ]
 
 { #category : #test }
+WCGeoHashHttpRetriverTest >> testAddressOfId [
+
+		db := WCGeoHashHttpRetriver new baseUrl: server url.
+	self assert: (db addressOfId: id) equals: gh
+]
+
+{ #category : #test }
 WCGeoHashHttpRetriverTest >> testGetIndexAt [
 
 	db := WCGeoHashHttpRetriver new baseUrl: server url.

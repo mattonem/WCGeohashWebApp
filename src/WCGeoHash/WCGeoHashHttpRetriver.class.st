@@ -9,6 +9,16 @@ Class {
 }
 
 { #category : #accessing }
+WCGeoHashHttpRetriver >> addressOfId: aString [
+
+	^ (STONJSON fromString:
+		   (self getClient get: self objectUrl / (aString , '.ston'))
+			   utf8Decoded) at: #address.
+			
+		
+]
+
+{ #category : #accessing }
 WCGeoHashHttpRetriver >> baseUrl: anObject [
 
 	baseUrl := anObject.
