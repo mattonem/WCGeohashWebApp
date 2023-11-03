@@ -19,25 +19,26 @@ WCGeoHashDB >> addToIndexAt: aWCGeoHash id: aString [
 ]
 
 { #category : #'as yet unclassified' }
-WCGeoHashDB >> addressOfId: aString [ 
+WCGeoHashDB >> addressOfId: aString [
 
-	^ (STON fromString: (self objectFolder / aString) readStream contents)
-		  at: #address 
+	^ (STON fromString: (self objectFolder / (aString , '.ston')) readStream contents)
+		  at: #address
 ]
 
 { #category : #writing }
 WCGeoHashDB >> deleteId: anId [
+
 	| aGh |
-	aGh := (self addressOfId: anId).
-	(self objectFolder / anId) ensureDelete.
+	aGh := self addressOfId: anId.
+	(self objectFolder / (anId , '.ston')) ensureDelete.
 	self removeFromIndex: anId geoHash: aGh
 ]
 
 { #category : #accessing }
 WCGeoHashDB >> getIndexAt: aWCGeoHash [
 
-	(rootFolder / aWCGeoHash stringAddress) ensureCreateFile.
-	^ (rootFolder / aWCGeoHash stringAddress) readStream contents
+	(rootFolder / (aWCGeoHash stringAddress , '.ston')) ensureCreateFile.
+	^ (rootFolder / (aWCGeoHash stringAddress , '.ston')) readStream contents
 		  ifEmpty: [ OrderedCollection new ]
 		  ifNotEmpty: [ :c | STONJSON fromString: c ]
 ]
@@ -45,7 +46,8 @@ WCGeoHashDB >> getIndexAt: aWCGeoHash [
 { #category : #'as yet unclassified' }
 WCGeoHashDB >> getObjectAtId: aString [
 
-	^ (STON fromString: (self objectFolder / aString) readStream contents) at: #data
+	^ (STON fromString: (self objectFolder / (aString , '.ston')) readStream contents)
+		  at: #data
 ]
 
 { #category : #'as yet unclassified' }
@@ -87,18 +89,18 @@ WCGeoHashDB >> write: anObject id: aString2 geoHash: aWCGeoHash [
 { #category : #writing }
 WCGeoHashDB >> writeIndex: aCollection at: aWCGeoHash [
 
-	(rootFolder / aWCGeoHash stringAddress) ensureDelete.
-	(rootFolder / aWCGeoHash stringAddress) ensureCreateFile.
-	rootFolder / aWCGeoHash stringAddress writeStreamDo: [ :s |
+	(rootFolder / (aWCGeoHash stringAddress , '.ston')) ensureDelete.
+	(rootFolder / (aWCGeoHash stringAddress , '.ston')) ensureCreateFile.
+	rootFolder / (aWCGeoHash stringAddress , '.ston') writeStreamDo: [ :s |
 		(STONWriter on: s) nextPut: aCollection ]
 ]
 
 { #category : #writing }
 WCGeoHashDB >> writeObject: anObject id: aString2 geoHash: aGeoHash [
 
-	(self objectFolder / aString2) ensureDelete.
-	(self objectFolder / aString2) ensureCreateFile.
-	self objectFolder / aString2 writeStreamDo: [ :s |
+	(self objectFolder / (aString2 , '.ston')) ensureDelete.
+	(self objectFolder / (aString2 , '.ston')) ensureCreateFile.
+	self objectFolder / (aString2 , '.ston') writeStreamDo: [ :s |
 		(STONWriter on: s) nextPut: {
 				(#data -> anObject).
 				(#address -> aGeoHash) } asDictionary ]
