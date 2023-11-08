@@ -11,11 +11,9 @@ Class {
 { #category : #accessing }
 WCGeoHashHttpRetriver >> addressOfId: aString [
 
-	^ (STONJSON fromString:
-		   (self getClient get: self objectUrl / (aString , '.ston'))
-			   utf8Decoded) at: #address.
-			
-		
+	^ (PhxJsonReader readFromString:
+		   (self getClient get:
+			    (self objectUrl withPath: aString , '.json'))) at: #address
 ]
 
 { #category : #accessing }
@@ -27,23 +25,40 @@ WCGeoHashHttpRetriver >> baseUrl: anObject [
 
 { #category : #'as yet unclassified' }
 WCGeoHashHttpRetriver >> getClient [
-	^ client ifNil: [ client := ZnClient new ]
+
+	^ client ifNil: [ client := self newHttpClient ]
 ]
 
 { #category : #accessing }
 WCGeoHashHttpRetriver >> getIndexAt: anAddress [
-	^ STONJSON fromString: (self getClient get:( baseUrl / (anAddress stringAddress , '.ston')) ) utf8Decoded
+
+	^ PhxJsonReader readFromString: (self getClient get:
+			   (baseUrl withPath: anAddress stringAddress , '.json'))
 ]
 
 { #category : #accessing }
 WCGeoHashHttpRetriver >> getObjectAtId: aString [
 
-	^ (STONJSON fromString:
-		  (self getClient get: self objectUrl / (aString , '.ston'))
-			  utf8Decoded) at: #data
+	^ (PhxJsonReader readFromString:
+		   (self getClient get:
+			    (self objectUrl withPath: aString , '.json'))) at: #data
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHashHttpRetriver >> newHttpClient [
+
+	<javascript: 'return this.pj_newJSHttpClient()'>
+	^ ZnClient new
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHashHttpRetriver >> newJSHttpClient [
+
+	^ PjHttpClient new
 ]
 
 { #category : #'as yet unclassified' }
 WCGeoHashHttpRetriver >> objectUrl [
-	^ baseUrl / 'objects'
+
+	^ baseUrl withPath: 'objects'
 ]

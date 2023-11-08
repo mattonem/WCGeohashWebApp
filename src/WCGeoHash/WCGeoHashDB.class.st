@@ -21,7 +21,8 @@ WCGeoHashDB >> addToIndexAt: aWCGeoHash id: aString [
 { #category : #'as yet unclassified' }
 WCGeoHashDB >> addressOfId: aString [
 
-	^ (STON fromString: (self objectFolder / (aString , '.ston')) readStream contents)
+	^ (PhxJsonReader readFromString:
+		   (self objectFolder / (aString , '.json')) readStream contents)
 		  at: #address
 ]
 
@@ -37,16 +38,18 @@ WCGeoHashDB >> deleteId: anId [
 { #category : #accessing }
 WCGeoHashDB >> getIndexAt: aWCGeoHash [
 
-	(rootFolder / (aWCGeoHash stringAddress , '.ston')) ensureCreateFile.
-	^ (rootFolder / (aWCGeoHash stringAddress , '.ston')) readStream contents
+	(rootFolder / (aWCGeoHash stringAddress , '.json')) ensureCreateFile.
+	^ (rootFolder / (aWCGeoHash stringAddress , '.json')) readStream
+		  contents
 		  ifEmpty: [ OrderedCollection new ]
-		  ifNotEmpty: [ :c | STONJSON fromString: c ]
+		  ifNotEmpty: [ :c | PhxJsonReader readFromString: c ]
 ]
 
 { #category : #'as yet unclassified' }
 WCGeoHashDB >> getObjectAtId: aString [
 
-	^ (STON fromString: (self objectFolder / (aString , '.ston')) readStream contents)
+	^ (PhxJsonReader readFromString:
+		   (self objectFolder / (aString , '.json')) readStream contents)
 		  at: #data
 ]
 
@@ -89,19 +92,19 @@ WCGeoHashDB >> write: anObject id: aString2 geoHash: aWCGeoHash [
 { #category : #writing }
 WCGeoHashDB >> writeIndex: aCollection at: aWCGeoHash [
 
-	(rootFolder / (aWCGeoHash stringAddress , '.ston')) ensureDelete.
-	(rootFolder / (aWCGeoHash stringAddress , '.ston')) ensureCreateFile.
-	rootFolder / (aWCGeoHash stringAddress , '.ston') writeStreamDo: [ :s |
-		(STONWriter on: s) nextPut: aCollection ]
+	(rootFolder / (aWCGeoHash stringAddress , '.json')) ensureDelete.
+	(rootFolder / (aWCGeoHash stringAddress , '.json')) ensureCreateFile.
+	rootFolder / (aWCGeoHash stringAddress , '.json') writeStreamDo: [ :s |
+		s nextPutAll: aCollection asPhxJsonString  ]
 ]
 
 { #category : #writing }
 WCGeoHashDB >> writeObject: anObject id: aString2 geoHash: aGeoHash [
 
-	(self objectFolder / (aString2 , '.ston')) ensureDelete.
-	(self objectFolder / (aString2 , '.ston')) ensureCreateFile.
-	self objectFolder / (aString2 , '.ston') writeStreamDo: [ :s |
-		(STONWriter on: s) nextPut: {
+	(self objectFolder / (aString2 , '.json')) ensureDelete.
+	(self objectFolder / (aString2 , '.json')) ensureCreateFile.
+	self objectFolder / (aString2 , '.json') writeStreamDo: [ :s |
+		s nextPutAll: {
 				(#data -> anObject).
-				(#address -> aGeoHash) } asDictionary ]
+				(#address -> aGeoHash) } asDictionary asPhxJsonString ]
 ]

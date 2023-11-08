@@ -241,11 +241,12 @@ WCGeoHash >> byteArray [
 
 { #category : #accessing }
 WCGeoHash >> byteArray: aCollection [
-		aCollection do: [ :aByte |
+
+	aCollection do: [ :aByte |
 		aByte <= self maxByteValue ifFalse: [
 			Error signal: 'Geohash bytes cannot be higher than 31' ] ].
 
-	byteArray := aCollection
+	byteArray := aCollection asArray
 ]
 
 { #category : #accessing }
