@@ -9,7 +9,7 @@ Trait {
 		'url',
 		'ghIndex'
 	],
-	#category : #'WCGeoHash-Tests'
+	#category : #'WCGeoHashWebApp-Tests'
 }
 
 { #category : #tests }
