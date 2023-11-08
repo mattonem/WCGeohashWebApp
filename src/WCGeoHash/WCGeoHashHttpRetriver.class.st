@@ -53,7 +53,7 @@ WCGeoHashHttpRetriver >> newHttpClient [
 
 { #category : #'as yet unclassified' }
 WCGeoHashHttpRetriver >> newJSHttpClient [
-
+	<ignoreForCoverage>
 	^ PjHttpClient new
 ]
 
