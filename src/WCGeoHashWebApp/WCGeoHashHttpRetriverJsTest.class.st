@@ -3,7 +3,7 @@ Class {
 	#superclass : #PjWebAppTestCase,
 	#traits : 'PjTAppRunsInJS + WCGeoHashHttpRetriverTestTrait',
 	#classTraits : 'PjTAppRunsInJS classTrait + WCGeoHashHttpRetriverTestTrait classTrait',
-	#category : #'WCGeoHash-Tests'
+	#category : #'WCGeoHashWebApp-Tests'
 }
 
 { #category : #'suite parameters' }
