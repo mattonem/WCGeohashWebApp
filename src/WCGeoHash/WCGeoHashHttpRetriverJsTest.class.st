@@ -8,7 +8,7 @@ Class {
 
 { #category : #'suite parameters' }
 WCGeoHashHttpRetriverJsTest class >> appClass [
-
+ 
 	^ WCHelloWorldApp
 ]
 
