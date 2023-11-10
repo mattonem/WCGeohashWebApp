@@ -106,9 +106,10 @@ WCAutoGeoHashWebApp >> initialize [
 { #category : #'initialize-release' }
 WCAutoGeoHashWebApp >> start [
 
-	| layers ghs |
+	| layers ghs db |
 	layers := OrderedCollection new.
-
+	db := WCGeoHashHttpRetriver new baseUrl:
+		      (WCUrl new addToPath: 'WCGeohashWebApp/data').
 	(document getElementById: 'goTo') addEventListener: #click block: [
 		| lon lat |
 		lon := (document getElementById: 'lon') value asNumber.
@@ -126,7 +127,9 @@ WCAutoGeoHashWebApp >> start [
 			regions := WCGeoHash divideRegion: region.
 			console log: region.
 			ghs := WCGeoHash hashesCoverRegion: region precision: 7.
-			ghs do: [ :aGh | adresses := adresses , ' ' , aGh stringAddress ].
+			ghs do: [ :aGh |
+				console log: (db getIndexAt: aGh).
+				adresses := adresses , ' ' , aGh stringAddress ].
 
 			(document getElementById: 'result') innerHTML: adresses.
 			layers do: [ :aLayer | aLayer remove ].

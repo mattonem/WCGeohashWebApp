@@ -33,10 +33,9 @@ WCGeoHashHttpRetriver >> getIndexAt: anAddress [
 
 	| client |
 	client := self getClient.
-	client get: (baseUrl withPath: anAddress stringAddress , '.json').
+	client get: (baseUrl copy withPath: anAddress stringAddress , '.json').
 	^ client response code = 200
-		  ifTrue: [
-		  PhxJsonReader readFromString: client response contents ]
+		  ifTrue: [ PhxJsonReader readFromString: client response contents ]
 		  ifFalse: [ {  } ]
 ]
 
