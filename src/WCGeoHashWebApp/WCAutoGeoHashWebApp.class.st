@@ -157,7 +157,7 @@ WCAutoGeoHashWebApp >> start [
 							 gh bounds topRight.
 							 gh bounds bottomRight.
 							 gh bounds bottomLeft }).
-				layers add: ((self componentNamed: #map) addMarker: gh center) ].
+				].
 			(document getElementById: 'lon') value: lon.
 			(document getElementById: 'lat') value: lat ].
 	(self componentNamed: #map)
