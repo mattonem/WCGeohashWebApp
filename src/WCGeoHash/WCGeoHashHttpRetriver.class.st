@@ -50,8 +50,11 @@ WCGeoHashHttpRetriver >> getIndexAt: anAddress do: aBlock [
 				aBlock value:
 					(PhxJsonReader readFromString: event currentTarget responseText) ]
 			ifFalse: [  ] ].
-		req := client method:'GET' url: (baseUrl copy withPath: anAddress stringAddress , '.json').
-		req send:''
+
+	req := client
+		       method: 'GET'
+		       url: (baseUrl withPath: anAddress stringAddress , '.json') asString.
+	req send: ''
 ]
 
 { #category : #accessing }
