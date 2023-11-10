@@ -129,14 +129,14 @@ WCAutoGeoHashWebApp >> start [
 			layers do: [ :aLayer | aLayer remove ].
 			layers removeAll.
 			ghs do: [ :aGh |
-				| ids |
-				ids := db getIndexAt: aGh.
-				ids do: [ :id |
-					| obj add |
-					obj := db getObjectAtId: id.
-					add := db addressOfId: id.
-					console log: obj.
-					layers add: ((self componentNamed: #map) addMarker: add center) ].
+			
+				db getIndexAt: aGh do: [ :id |
+					       | obj add |
+					       obj := db getObjectAtId: id.
+					       add := db addressOfId: id.
+					       console log: obj.
+					       layers add:
+						       ((self componentNamed: #map) addMarker: add center) ].
 				adresses := adresses , ' ' , aGh stringAddress ].
 
 			(document getElementById: 'result') innerHTML: adresses.
@@ -156,8 +156,7 @@ WCAutoGeoHashWebApp >> start [
 							 gh bounds topLeft.
 							 gh bounds topRight.
 							 gh bounds bottomRight.
-							 gh bounds bottomLeft }).
-				].
+							 gh bounds bottomLeft }) ].
 			(document getElementById: 'lon') value: lon.
 			(document getElementById: 'lat') value: lat ].
 	(self componentNamed: #map)

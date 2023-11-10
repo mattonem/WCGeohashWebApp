@@ -40,6 +40,17 @@ WCGeoHashHttpRetriver >> getIndexAt: anAddress [
 ]
 
 { #category : #accessing }
+WCGeoHashHttpRetriver >> getIndexAt: anAddress do: aBlock [
+
+	| client |
+	client := self getClient.
+	client onLoad: [ :event | event currentTarget status = 200
+		  ifTrue: [ aBlock value: (PhxJsonReader readFromString: event currentTarget responseText) ]
+		  ifFalse: [ ] ].
+	
+]
+
+{ #category : #accessing }
 WCGeoHashHttpRetriver >> getObjectAtId: aString [
 
 	^ (PhxJsonReader readFromString:
