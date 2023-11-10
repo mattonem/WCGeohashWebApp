@@ -42,12 +42,16 @@ WCGeoHashHttpRetriver >> getIndexAt: anAddress [
 { #category : #accessing }
 WCGeoHashHttpRetriver >> getIndexAt: anAddress do: aBlock [
 
-	| client |
+	| client req |
 	client := self getClient.
-	client onLoad: [ :event | event currentTarget status = 200
-		  ifTrue: [ aBlock value: (PhxJsonReader readFromString: event currentTarget responseText) ]
-		  ifFalse: [ ] ].
-	
+	client onLoad: [ :event |
+		event currentTarget status = 200
+			ifTrue: [
+				aBlock value:
+					(PhxJsonReader readFromString: event currentTarget responseText) ]
+			ifFalse: [  ] ].
+		req := client method:'GET' url: (baseUrl copy withPath: anAddress stringAddress , '.json').
+		req send:''
 ]
 
 { #category : #accessing }
