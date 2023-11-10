@@ -2,8 +2,7 @@ Class {
 	#name : #WCGeoHashHttpRetriver,
 	#superclass : #Object,
 	#instVars : [
-		'baseUrl',
-		'client'
+		'baseUrl'
 	],
 	#category : #WCGeoHash
 }
@@ -26,14 +25,19 @@ WCGeoHashHttpRetriver >> baseUrl: anObject [
 { #category : #'as yet unclassified' }
 WCGeoHashHttpRetriver >> getClient [
 
-	^ client ifNil: [ client := self newHttpClient ]
+	^ self newHttpClient 
 ]
 
 { #category : #accessing }
 WCGeoHashHttpRetriver >> getIndexAt: anAddress [
 
-	^ PhxJsonReader readFromString: (self getClient get:
-			   (baseUrl withPath: anAddress stringAddress , '.json'))
+	| client |
+	client := self getClient.
+	client get: (baseUrl withPath: anAddress stringAddress , '.json').
+	^ client response code = 200
+		  ifTrue: [
+		  PhxJsonReader readFromString: client response contents ]
+		  ifFalse: [ {  } ]
 ]
 
 { #category : #accessing }

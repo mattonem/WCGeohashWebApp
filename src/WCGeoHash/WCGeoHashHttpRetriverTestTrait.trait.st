@@ -20,6 +20,13 @@ WCGeoHashHttpRetriverTestTrait >> testAddressOfId [
 ]
 
 { #category : #tests }
+WCGeoHashHttpRetriverTestTrait >> testGetEmptyIndexAt [
+
+	retriever baseUrl: url.
+	self assert: (retriever getIndexAt: ghIndex north) size equals: 0
+]
+
+{ #category : #tests }
 WCGeoHashHttpRetriverTestTrait >> testGetIndexAt [
 
 	retriever baseUrl: url.
