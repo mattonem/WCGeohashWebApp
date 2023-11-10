@@ -132,10 +132,11 @@ WCAutoGeoHashWebApp >> start [
 				| ids |
 				ids := db getIndexAt: aGh.
 				ids do: [ :id |
-					| obj |
+					| obj add |
 					obj := db getObjectAtId: id.
+					add := db addressOfId: id.
 					console log: obj.
-					layers add: ((self componentNamed: #map) addMarker: obj) ].
+					layers add: ((self componentNamed: #map) addMarker: add center) ].
 				adresses := adresses , ' ' , aGh stringAddress ].
 
 			(document getElementById: 'result') innerHTML: adresses.
