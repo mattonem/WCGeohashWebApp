@@ -125,15 +125,21 @@ WCAutoGeoHashWebApp >> start [
 			adresses := ''.
 			region := (self componentNamed: #map) getBounds.
 			regions := WCGeoHash divideRegion: region.
-			console log: region.
 			ghs := WCGeoHash hashesCoverRegion: region precision: 7.
+			layers do: [ :aLayer | aLayer remove ].
+			layers removeAll.
 			ghs do: [ :aGh |
-				console log: (db getIndexAt: aGh).
+				| ids |
+				ids := db getIndexAt: aGh.
+				ids do: [ :id |
+					| obj |
+					obj := db getObjectAtId: id.
+					console log: obj.
+					layers add: ((self componentNamed: #map) addMarker: obj) ].
 				adresses := adresses , ' ' , aGh stringAddress ].
 
 			(document getElementById: 'result') innerHTML: adresses.
-			layers do: [ :aLayer | aLayer remove ].
-			layers removeAll.
+
 
 			regions do: [ :aRow |
 				aRow do: [ :aRect |
