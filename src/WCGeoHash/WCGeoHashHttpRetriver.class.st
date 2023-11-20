@@ -42,19 +42,14 @@ WCGeoHashHttpRetriver >> getIndexAt: anAddress [
 { #category : #accessing }
 WCGeoHashHttpRetriver >> getIndexAt: anAddress do: aBlock [
 
-	| client req |
+	| client |
 	client := self getClient.
-	client onLoad: [ :event |
-		event currentTarget status = 200
-			ifTrue: [
-				aBlock value:
-					(PhxJsonReader readFromString: event currentTarget responseText) ]
-			ifFalse: [  ] ].
-
-	req := client
-		       method: 'GET'
-		       url: (baseUrl withPath: anAddress stringAddress , '.json') asString.
-	req send: ''
+	client
+		getUrl: (baseUrl withPath: anAddress stringAddress , '.json')
+		do: [ :response :status |
+			status = 200
+				ifTrue: [ aBlock value: (PhxJsonReader readFromString: response) ]
+				ifFalse: [  ] ]
 ]
 
 { #category : #accessing }
@@ -68,11 +63,11 @@ WCGeoHashHttpRetriver >> getObjectAtId: aString [
 { #category : #accessing }
 WCGeoHashHttpRetriver >> getObjectAtId: aString do: aBlock [
 
-	| client  |
+	| client |
 	client := self getClient.
 	client
 		getUrl: (self objectUrl withPath: aString , '.json') asString
-		do: [ :responseText |
+		do: [ :responseText :status |
 			| content |
 			content := PhxJsonReader readFromString: responseText.
 			aBlock value: (content at: #address) value: (content at: #data) ]
