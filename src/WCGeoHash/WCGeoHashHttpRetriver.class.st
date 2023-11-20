@@ -65,6 +65,30 @@ WCGeoHashHttpRetriver >> getObjectAtId: aString [
 			    (self objectUrl withPath: aString , '.json'))) at: #data
 ]
 
+{ #category : #accessing }
+WCGeoHashHttpRetriver >> getObjectAtId: aString do: aBlock [
+
+	| client req |
+	client := self getClient.
+	client onLoad: [ :event |
+		| content |
+		content := PhxJsonReader readFromString:
+			           event currentTarget responseText.
+		aBlock value: (content at: #address) value: (content at: #data) ].
+	req := client
+		       method: 'GET'
+		       url: (self objectUrl withPath: aString , '.json') asString.
+	req send: ''
+]
+
+{ #category : #accessing }
+WCGeoHashHttpRetriver >> getObjectsIn: aGh do: aBlock [
+
+	self getIndexAt: aGh do: [ :ids |
+		ids do: [ :id |
+			self getObjectAtId: id do: aBlock ] ]
+]
+
 { #category : #'as yet unclassified' }
 WCGeoHashHttpRetriver >> newHttpClient [
 
