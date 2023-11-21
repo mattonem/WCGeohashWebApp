@@ -3,6 +3,10 @@ Class {
 	#superclass : #PjFileBasedWebApp,
 	#traits : 'StaticComponentHolder',
 	#classTraits : 'StaticComponentHolder classTrait',
+	#instVars : [
+		'db',
+		'layers'
+	],
 	#category : #WCGeoHashWebApp
 }
 
@@ -63,16 +67,33 @@ WCAutoGeoHashWebApp class >> generateHtmlUsing: html [
 										with: 'Latitude' ].
 							html div
 								class: 'mb-3';
-								with: [html button
-								class: 'btn btn-primary';
-								id: 'goTo';
-								with: 'Go to'].
+								with: [
+									html button
+										class: 'btn btn-primary';
+										id: 'goTo';
+										with: 'Go to' ].
 							html div
-								class: 'mb-3';
-								with: [html button
-								class: 'btn btn-primary';
-								id: 'calculate';
-								with: 'calculate'].
+								class: 'form-check form-switch';
+								with: [
+									html checkbox
+										class: 'form-check-input';
+										checked;
+										id: 'auto'.
+									html label
+										class: 'form-check-label';
+										for: 'auto';
+										with: 'Auto calculate' ].
+
+							html div
+								class: 'form-check form-switch';
+								with: [
+									html checkbox
+										class: 'form-check-input';
+										id: 'debug'.
+									html label
+										class: 'form-check-label';
+										for: 'debug';
+										with: 'Debug view' ].
 							html paragraph with: 'GeoHash address:'.
 							html span id: 'result' ] ] ]
 ]
@@ -91,9 +112,57 @@ WCAutoGeoHashWebApp class >> updateHtmlRoot: root [
 ]
 
 { #category : #'initialize-release' }
+WCAutoGeoHashWebApp >> calculate [
+
+	| lon lat region regions adresses ghs |
+	(document getElementById: 'auto') checked ifFalse: [ ^ self ].
+	region := (self componentNamed: #map) getBounds.
+	lon := (self componentNamed: #map) getCenter lng.
+	lat := (self componentNamed: #map) getCenter lat.
+	adresses := ''.
+	region := (self componentNamed: #map) getBounds.
+	regions := WCGeoHash divideRegion: region.
+	ghs := WCGeoHash hashesCoverRegion: region precision: 9.
+	layers do: [ :aLayer | aLayer remove ].
+	layers removeAll.
+	ghs do: [ :aGh |
+		db getObjectsIn: aGh do: [ :add :object |
+			| marker |
+			marker := (self componentNamed: #map) addMarker: add center.
+			marker bindPopup: object.
+			layers add: marker ].
+		adresses := adresses , ' ' , aGh stringAddress ].
+	(document getElementById: 'result') innerHTML: adresses.
+	(document getElementById: 'debug') checked ifTrue: [
+		self drawDebug: regions andGH: ghs inLayers: layers ].
+	(document getElementById: 'lon') value: lon.
+	(document getElementById: 'lat') value: lat
+]
+
+{ #category : #'initialize-release' }
 WCAutoGeoHashWebApp >> defaultCoordinates [
 
 	^ 48.85071003048404 @ 2.3634338378906254
+]
+
+{ #category : #'initialize-release' }
+WCAutoGeoHashWebApp >> drawDebug: regions andGH: ghs inLayers: layers [
+
+	regions do: [ :aRow |
+		aRow do: [ :aRect |
+			layers add: ((self componentNamed: #map)
+					 polygon: {
+							 aRect topLeft.
+							 aRect topRight.
+							 aRect bottomRight.
+							 aRect bottomLeft }
+					 with: { (#color -> #green) } asDictionary) ] ].
+	ghs do: [ :gh |
+		layers add: ((self componentNamed: #map) polygon: {
+					 gh bounds topLeft.
+					 gh bounds topRight.
+					 gh bounds bottomRight.
+					 gh bounds bottomLeft }) ]
 ]
 
 { #category : #'initialize-release' }
@@ -106,7 +175,6 @@ WCAutoGeoHashWebApp >> initialize [
 { #category : #'initialize-release' }
 WCAutoGeoHashWebApp >> start [
 
-	| layers ghs db |
 	layers := OrderedCollection new.
 	db := WCGeoHashHttpRetriver new baseUrl:
 		      (WCUrl new addToPath: 'WCGeohashWebApp/data').
@@ -115,46 +183,11 @@ WCAutoGeoHashWebApp >> start [
 		lon := (document getElementById: 'lon') value asNumber.
 		lat := (document getElementById: 'lat') value asNumber.
 		(self componentNamed: #map) setView: lat @ lon ].
-	(document getElementById: 'calculate')
-		addEventListener: #click
-		block: [ :e |
-			| lon lat region regions adresses |
-			region := (self componentNamed: #map) getBounds.
-			lon := (self componentNamed: #map) getCenter lng.
-			lat := (self componentNamed: #map) getCenter lat.
-			adresses := ''.
-			region := (self componentNamed: #map) getBounds.
-			regions := WCGeoHash divideRegion: region.
-			ghs := WCGeoHash hashesCoverRegion: region precision: 7.
-			layers do: [ :aLayer | aLayer remove ].
-			layers removeAll.
-			ghs do: [ :aGh |
-				db getObjectsIn: aGh do: [ :add :object ||marker|
-					marker :=((self componentNamed: #map) addMarker: add center).
-					marker bindPopup: object.
-					layers add: marker ].
-				adresses := adresses , ' ' , aGh stringAddress ].
-
-			(document getElementById: 'result') innerHTML: adresses.
-
-
-			regions do: [ :aRow |
-				aRow do: [ :aRect |
-					layers add: ((self componentNamed: #map)
-							 polygon: {
-									 aRect topLeft.
-									 aRect topRight.
-									 aRect bottomRight.
-									 aRect bottomLeft }
-							 with: { (#color -> #green) } asDictionary) ] ].
-			ghs do: [ :gh |
-				layers add: ((self componentNamed: #map) polygon: {
-							 gh bounds topLeft.
-							 gh bounds topRight.
-							 gh bounds bottomRight.
-							 gh bounds bottomLeft }) ].
-			(document getElementById: 'lon') value: lon.
-			(document getElementById: 'lat') value: lat ].
+	(self componentNamed: #map)
+		on: #moveend
+		do: [ :e |
+			self calculate
+			 ].
 	(self componentNamed: #map)
 		on: #moveend
 		do: [ :e |
