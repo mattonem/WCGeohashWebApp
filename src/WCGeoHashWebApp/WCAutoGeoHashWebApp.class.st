@@ -129,10 +129,10 @@ WCAutoGeoHashWebApp >> start [
 			layers do: [ :aLayer | aLayer remove ].
 			layers removeAll.
 			ghs do: [ :aGh |
-				db getObjectsIn: aGh do: [ :add :object |
-	
-						console log: object.
-						layers add: ((self componentNamed: #map) addMarker: add center) ] .
+				db getObjectsIn: aGh do: [ :add :object ||marker|
+					marker :=((self componentNamed: #map) addMarker: add center).
+					marker bindPopup: object.
+					layers add: marker ].
 				adresses := adresses , ' ' , aGh stringAddress ].
 
 			(document getElementById: 'result') innerHTML: adresses.
