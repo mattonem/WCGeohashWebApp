@@ -11,13 +11,19 @@ Class {
 WCGeoHashDataGenerator class >> generateData [
 	"self generateData"
 
-	| db gh id |
-	10000 timesRepeat: [
-		db := WCGeoHashDB new rootFolder:
-			      FileLocator workingDirectory / 'build' / 'data'.
-		gh := WCGeoHash hashFor: self randomCoordinate precision: 9.
+	| db id coords data |
+	1000 timesRepeat: [
+		db := WCGeoHashDB new
+			      rootFolder: FileLocator workingDirectory / 'build' / 'data';
+			      coords: #coordinates;
+			      ids: #id.
 		id := UUIDGenerator next asString.
-		db write: self randomName id: id geoHash: gh ]
+		coords := self randomCoordinate.
+		data := self randomName.
+		db write: {
+				(#data -> data).
+				(#coordinates -> coords).
+				(#id -> id) } asDictionary ]
 ]
 
 { #category : #'as yet unclassified' }

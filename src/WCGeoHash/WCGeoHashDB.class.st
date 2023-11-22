@@ -2,7 +2,10 @@ Class {
 	#name : #WCGeoHashDB,
 	#superclass : #Object,
 	#instVars : [
-		'rootFolder'
+		'rootFolder',
+		'coords',
+		'precision',
+		'ids'
 	],
 	#category : #WCGeoHash
 }
@@ -21,9 +24,29 @@ WCGeoHashDB >> addToIndexAt: aWCGeoHash id: aString [
 { #category : #'as yet unclassified' }
 WCGeoHashDB >> addressOfId: aString [
 
-	^ (PhxJsonReader readFromString:
-		   (self objectFolder / (aString , '.json')) readStream contents)
-		  at: #address
+	^ WCGeoHash hashFor:((self getObjectAtId: aString) at: coords) precision: precision.
+]
+
+{ #category : #enumerating }
+WCGeoHashDB >> allObjectsDo: aFullBlockClosure [
+
+	self objectFolder allFiles do: [ :aFile |
+		aFullBlockClosure value:
+			((PhxJsonReader readFromString: aFile readStream contents) ) ]
+]
+
+{ #category : #accessing }
+WCGeoHashDB >> coords: anObject [
+
+	coords := anObject
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHashDB >> createIndexIds: ids coordinates: coords precision: anInteger [ 
+	self allObjectsDo: [ :object | |aGh|
+			aGh := WCGeoHash hashFor: (object at: coords) precision: anInteger.
+		self addToIndexAt: aGh id: (object at: ids) ].
+	
 ]
 
 { #category : #writing }
@@ -33,6 +56,11 @@ WCGeoHashDB >> deleteId: anId [
 	aGh := self addressOfId: anId.
 	(self objectFolder / (anId , '.ston')) ensureDelete.
 	self removeFromIndex: anId geoHash: aGh
+]
+
+{ #category : #'as yet unclassified' }
+WCGeoHashDB >> deleteIndex [
+	rootFolder files do: [ :aFile | aFile delete ]
 ]
 
 { #category : #accessing }
@@ -50,12 +78,33 @@ WCGeoHashDB >> getObjectAtId: aString [
 
 	^ (PhxJsonReader readFromString:
 		   (self objectFolder / (aString , '.json')) readStream contents)
-		  at: #data
+
+]
+
+{ #category : #accessing }
+WCGeoHashDB >> ids: anObject [
+
+	ids := anObject
+]
+
+{ #category : #writing }
+WCGeoHashDB >> initialize [
+
+	super initialize.
+	precision := 7.
+	coords := #coordinates.
+	ids := #id
 ]
 
 { #category : #'as yet unclassified' }
 WCGeoHashDB >> objectFolder [
 	^ rootFolder / 'objects'
+]
+
+{ #category : #accessing }
+WCGeoHashDB >> precision: anObject [
+
+	precision := anObject
 ]
 
 { #category : #removing }
@@ -83,10 +132,10 @@ WCGeoHashDB >> update: anObject id: aString2 [
 ]
 
 { #category : #writing }
-WCGeoHashDB >> write: anObject id: aString2 geoHash: aWCGeoHash [
+WCGeoHashDB >> write: anObject [ 
 
-	self writeObject: anObject id: aString2 geoHash: aWCGeoHash.
-	self addToIndexAt: aWCGeoHash id: aString2
+	self writeObject: anObject id: (anObject at: ids) geoHash: (WCGeoHash hashFor: (anObject at: coords) precision: precision) .
+	self addToIndexAt: (WCGeoHash hashFor: (anObject at: coords) precision: precision) id: (anObject at: ids)
 ]
 
 { #category : #writing }
@@ -104,7 +153,5 @@ WCGeoHashDB >> writeObject: anObject id: aString2 geoHash: aGeoHash [
 	(self objectFolder / (aString2 , '.json')) ensureDelete.
 	(self objectFolder / (aString2 , '.json')) ensureCreateFile.
 	self objectFolder / (aString2 , '.json') writeStreamDo: [ :s |
-		s nextPutAll: {
-				(#data -> anObject).
-				(#address -> aGeoHash) } asDictionary asPhxJsonString ]
+		s nextPutAll: anObject asPhxJsonString ]
 ]

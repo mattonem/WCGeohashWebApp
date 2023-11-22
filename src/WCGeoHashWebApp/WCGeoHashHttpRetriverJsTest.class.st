@@ -42,8 +42,8 @@ WCGeoHashHttpRetriverJsTest >> setUp [
 			       host: host;
 			       addToPath: 'data';
 			       port: port ].
-	ghIndex := self evalBlock: [  (WCGeoHash fromString: 'e')].
-	
+	ghIndex := self evalBlock: [ WCGeoHash fromString: 'e' ].
+	result := self evalBlock: [ Dictionary new ]
 ]
 
 { #category : #accessing }

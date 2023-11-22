@@ -122,10 +122,11 @@ WCAutoGeoHashWebApp >> calculate [
 	ghs := WCGeoHash hashesCoverRegion: region precision: 9.
 	(self componentNamed: #map) removeAllLayers.
 	ghs do: [ :aGh |
-		db getObjectsIn: aGh do: [ :add :object |
+		db getObjectsIn: aGh do: [ :object |
 			| marker |
-			marker := (self componentNamed: #map) addMarker: add center.
-			marker bindPopup: object ].
+			marker := (self componentNamed: #map) addMarker:
+				          (object at: #coordinates).
+			marker bindPopup: (object at: #data) ].
 		adresses := adresses , ' ' , aGh stringAddress ].
 	(document getElementById: 'result') innerHTML: adresses.
 	(document getElementById: 'debug') checked ifTrue: [

@@ -22,12 +22,16 @@ WCGeoHashHttpRetriverTest >> setUp [
 	self assert: (db getIndexAt: gh) size equals: 0.
 	id := '123'.
 
-	db write: 'Random stuff' id: id geoHash: gh.
+	db write: {
+			(#id -> '123').
+			(#coordinates -> (9.9996 @ -4.329)).
+			(#data -> 'some cool stuff') } asDictionary.
 	retriever := WCGeoHashHttpRetriver new.
 	server := ZnServer startOn: 1234.
 	server delegate: (ZnStaticFileServerDelegate new
 			 directory: folder;
 			 yourself).
 	url := server url.
-	ghIndex := WCGeoHash fromString: 'e'
+	ghIndex := WCGeoHash fromString: 'e'.
+	result := Dictionary new
 ]

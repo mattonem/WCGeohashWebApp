@@ -7,37 +7,31 @@ Trait {
 		'gh',
 		'retriever',
 		'url',
-		'ghIndex'
+		'ghIndex',
+		'result'
 	],
 	#category : #'WCGeoHash-Tests'
 }
 
-{ #category : #tests }
-WCGeoHashHttpRetriverTestTrait >> testAddressOfId [
+{ #category : #test }
+WCGeoHashHttpRetriverTestTrait >> testGetObjectAtIdDo [
 
 	retriever baseUrl: url.
-	self assert: (retriever addressOfId: id) stringAddress equals: gh stringAddress
+	retriever
+		getObjectAtId: id
+		do: [ :object | result at: #object put: object ].
+	self assert: ((result at: #object) at: #data) equals: 'some cool stuff'
 ]
 
-{ #category : #tests }
-WCGeoHashHttpRetriverTestTrait >> testGetEmptyIndexAt [
+{ #category : #test }
+WCGeoHashHttpRetriverTestTrait >> testGetObjectsInDo [
 
 	retriever baseUrl: url.
-	self assert: (retriever getIndexAt: ghIndex north) size equals: 0
-]
 
-{ #category : #tests }
-WCGeoHashHttpRetriverTestTrait >> testGetIndexAt [
-
-	retriever baseUrl: url.
+	retriever
+		getObjectsIn: gh
+		do: [ :object | result at: #object put: object ].
 	self
-		assert: (retriever getIndexAt: ghIndex) size
-		equals: 1
-]
-
-{ #category : #tests }
-WCGeoHashHttpRetriverTestTrait >> testGetObjectAtId [
-
-	 retriever baseUrl: url.
-	self assert: (retriever getObjectAtId: id) equals: 'Random stuff'
+		assert: ((result at: #object) at: #data)
+		equals: 'some cool stuff'
 ]

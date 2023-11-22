@@ -2,18 +2,13 @@ Class {
 	#name : #WCGeoHashHttpRetriver,
 	#superclass : #Object,
 	#instVars : [
-		'baseUrl'
+		'baseUrl',
+		'coords',
+		'precision',
+		'ids'
 	],
 	#category : #WCGeoHash
 }
-
-{ #category : #accessing }
-WCGeoHashHttpRetriver >> addressOfId: aString [
-
-	^ (PhxJsonReader readFromString:
-		   (self getClient get:
-			    (self objectUrl withPath: aString , '.json'))) at: #address
-]
 
 { #category : #accessing }
 WCGeoHashHttpRetriver >> baseUrl: anObject [
@@ -26,17 +21,6 @@ WCGeoHashHttpRetriver >> baseUrl: anObject [
 WCGeoHashHttpRetriver >> getClient [
 
 	^ self newHttpClient 
-]
-
-{ #category : #accessing }
-WCGeoHashHttpRetriver >> getIndexAt: anAddress [
-
-	| client |
-	client := self getClient.
-	client get: (baseUrl copy withPath: anAddress stringAddress , '.json').
-	^ client response code = 200
-		  ifTrue: [ PhxJsonReader readFromString: client response contents ]
-		  ifFalse: [ {  } ]
 ]
 
 { #category : #accessing }
@@ -53,14 +37,6 @@ WCGeoHashHttpRetriver >> getIndexAt: anAddress do: aBlock [
 ]
 
 { #category : #accessing }
-WCGeoHashHttpRetriver >> getObjectAtId: aString [
-
-	^ (PhxJsonReader readFromString:
-		   (self getClient get:
-			    (self objectUrl withPath: aString , '.json'))) at: #data
-]
-
-{ #category : #accessing }
 WCGeoHashHttpRetriver >> getObjectAtId: aString do: aBlock [
 
 	| client |
@@ -70,29 +46,30 @@ WCGeoHashHttpRetriver >> getObjectAtId: aString do: aBlock [
 		do: [ :responseText :status |
 			| content |
 			content := PhxJsonReader readFromString: responseText.
-			aBlock value: (content at: #address) value: (content at: #data) ]
+			aBlock value: content ]
 ]
 
 { #category : #accessing }
 WCGeoHashHttpRetriver >> getObjectsIn: aGh do: aBlock [
 
-	self getIndexAt: aGh do: [ :ids |
-		ids do: [ :id |
-			self getObjectAtId: id do: aBlock ] ]
+	self
+		getIndexAt: aGh
+		do: [ :allIds | allIds do: [ :id | self getObjectAtId: id do: aBlock ] ]
+]
+
+{ #category : #accessing }
+WCGeoHashHttpRetriver >> initialize [
+
+	super initialize.
+	precision := 7.
+	coords := #coordinates.
+	ids := #id
 ]
 
 { #category : #'as yet unclassified' }
 WCGeoHashHttpRetriver >> newHttpClient [
 
-	<javascript: 'return this.pj_newJSHttpClient()'>
-	^ ZnClient new
-]
-
-{ #category : #'as yet unclassified' }
-WCGeoHashHttpRetriver >> newJSHttpClient [
-
-	<ignoreForCoverage>
-	^ PjHttpClient new
+^ PjHttpClient new
 ]
 
 { #category : #'as yet unclassified' }

@@ -12,12 +12,36 @@ Class {
 
 { #category : #running }
 WCGeoHashDBTest >> setUp [
-	|folder|
+
+	| folder |
 	super setUp.
 	folder := FileLocator workingDirectory / 'dbTest'.
 	folder ensureDeleteAll.
 	folder ensureCreateDirectory.
-	db := WCGeoHashDB new rootFolder: folder
+	db := WCGeoHashDB new
+		      rootFolder: folder;
+		      coords: #coordinates;
+		      precision: 7;
+		      yourself
+]
+
+{ #category : #test }
+WCGeoHashDBTest >> testCreateIndex [
+
+	| gh |
+	gh := WCGeoHash hashFor: 9.9996 @ -4.329 precision: 7.
+	db
+		write: {
+				(#id -> '123').
+				(#coordinates -> (9.9996 @ -4.329)).
+				(#data -> 'some cool stuff') } asDictionary.
+	self assert: (db getIndexAt: gh) size equals: 1.
+	self assert: (db getIndexAt: gh parent) size equals: 1.
+	db deleteIndex.
+	self assert: (db getIndexAt: gh) size equals: 0.
+	db createIndexIds: #id coordinates: #coordinates precision: 7.
+	self assert: (db getIndexAt: gh) size equals: 1.
+	self assert: (db getIndexAt: gh parent) size equals: 1
 ]
 
 { #category : #test }
@@ -25,10 +49,33 @@ WCGeoHashDBTest >> testDeleteId [
 
 	| gh |
 	gh := WCGeoHash hashFor: 9.9996 @ -4.329 precision: 7.
-	db write: 'Random stuff' id: '123' geoHash: gh.
+	db
+		write: {
+				(#id -> '123').
+				(#coordinates -> (9.9996 @ -4.329)).
+				(#data -> 'some cool stuff') } asDictionary.
 	db deleteId: '123'.
 	self assert: (db getIndexAt: gh) size equals: 0.
-	self assert: (db getIndexAt: gh parent)  size equals: 0
+	self assert: (db getIndexAt: gh parent) size equals: 0
+]
+
+{ #category : #test }
+WCGeoHashDBTest >> testDeleteIndex [
+
+	| gh |
+	gh := WCGeoHash hashFor: 9.9996 @ -4.329 precision: 7.
+	db
+		write: {
+				(#id -> '123').
+				(#coordinates -> (9.9996 @ -4.329)).
+				(#data -> 'Random stuff') } asDictionary.
+	self assert: (db getIndexAt: gh) size equals: 1.
+	self assert: (db getIndexAt: gh parent) size equals: 1.
+	db deleteIndex.
+	self assert: (db getIndexAt: gh) size equals: 0.
+	self
+		assert: ((db getObjectAtId: '123') at: #data)
+		equals: 'Random stuff'
 ]
 
 { #category : #test }
@@ -36,9 +83,19 @@ WCGeoHashDBTest >> testUpdateId [
 
 	| gh |
 	gh := WCGeoHash hashFor: 9.9996 @ -4.329 precision: 7.
-	db write: 'Random stuff' id: '123' geoHash: gh.
-	db update: 'Random other stuff' id: '123'.
-	self assert: (db getObjectAtId: '123') equals: 'Random other stuff'.
+	db
+		write: {
+				(#id -> '123').
+				(#coordinates -> (9.9996 @ -4.329)).
+				(#data -> 'Random stuff') } asDictionary.
+	db
+		write: {
+				(#id -> '123').
+				(#coordinates -> (9.9996 @ -4.329)).
+				(#data -> 'Random other stuff') } asDictionary.
+	self
+		assert: ((db getObjectAtId: '123') at: #data)
+		equals: 'Random other stuff'
 ]
 
 { #category : #test }
@@ -47,8 +104,14 @@ WCGeoHashDBTest >> testWriteIdGeoHash [
 	| gh |
 	gh := WCGeoHash hashFor: 9.9996 @ -4.329 precision: 7.
 	self assert: (db getIndexAt: gh) size equals: 0.
-	db write: 'Random stuff' id: '123' geoHash: gh.
+	db
+		write: {
+				(#id -> '123').
+				(#coordinates -> (9.9996 @ -4.329)).
+				(#data -> 'Random stuff') } asDictionary.
 	self assert: (db getIndexAt: gh) size equals: 1.
 	self assert: (db getIndexAt: gh parent) size equals: 1.
-	self assert: (db getObjectAtId: '123') equals: 'Random stuff'
+	self
+		assert: ((db getObjectAtId: '123') at: #data)
+		equals: 'Random stuff'
 ]
