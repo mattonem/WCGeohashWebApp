@@ -111,46 +111,38 @@ WCGeoHashWebApp >> initialize [
 { #category : #'initialize-release' }
 WCGeoHashWebApp >> start [
 
-	|  gh |
+	| gh |
 	gh := WCGeoHash hashFor: 0 @ 0 precision: 5.
 
 	(self componentNamed: #map)
 		on: #moveend
 		do: [ :e |
-			| lon lat precision offset bounds |
-			lon := e target getCenter lng.
-			offset := 0.
-			[ lon > 180 ] whileTrue: [
-				offset := offset + 1.
-				lon := lon - 360 ].
-			[ lon < -180 ] whileTrue: [
-				offset := offset - 1.
-				lon := lon + 360 ].
-			lat := e target getCenter lat.
+			| lon lat precision bounds |
+			lon := e target getCenter wrap lng.
+			lat := e target getCenter wrap lat.
 			precision := (document getElementById: 'precision') value asNumber.
 			gh := WCGeoHash hashFor: lat @ lon precision: precision.
 			(document getElementById: 'result') innerHTML: gh stringAddress.
-			
-			(self componentNamed: #map) removeAllLayers .
+
+			(self componentNamed: #map) removeAllLayers.
 			gh allNeighbours do: [ :aGh |
 				| b |
-				b := aGh bounds translateBy: 0 @ (360 * offset).
-				 ((self componentNamed: #map)
-						 polygon: {
-								 b topLeft.
-								 b topRight.
-								 b bottomRight.
-								 b bottomLeft }
-						 with: { (#color -> #green) } asDictionary) ].
+				b := aGh bounds.
+				(self componentNamed: #map)
+					polygon: {
+							b topLeft.
+							b topRight.
+							b bottomRight.
+							b bottomLeft }
+					with: { (#color -> #green) } asDictionary ].
 
-			bounds := gh bounds translateBy: 0 @ (360 * offset).
-			 ((self componentNamed: #map) polygon: {
-						 bounds topLeft.
-						 bounds topRight.
-						 bounds bottomRight.
-						 bounds bottomLeft }).
-			((self componentNamed: #map) addMarker:
-					 (gh center translateBy: 0 @ (360 * offset))).
+			bounds := gh bounds.
+			(self componentNamed: #map) polygon: {
+					bounds topLeft.
+					bounds topRight.
+					bounds bottomRight.
+					bounds bottomLeft }.
+			(self componentNamed: #map) addMarker: gh center.
 			(document getElementById: 'lon') value: lon.
 			(document getElementById: 'lat') value: lat ].
 	(self componentNamed: #map) setView: self defaultCoordinates.

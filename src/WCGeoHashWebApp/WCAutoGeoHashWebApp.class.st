@@ -116,9 +116,6 @@ WCAutoGeoHashWebApp >> calculate [
 
 	| lon lat region regions adresses ghs |
 	(document getElementById: 'auto') checked ifFalse: [ ^ self ].
-	region := (self componentNamed: #map) getBounds.
-	lon := (self componentNamed: #map) getCenter lng.
-	lat := (self componentNamed: #map) getCenter lat.
 	adresses := ''.
 	region := (self componentNamed: #map) getBounds.
 	regions := WCGeoHash divideRegion: region.
@@ -173,7 +170,6 @@ WCAutoGeoHashWebApp >> initialize [
 { #category : #'initialize-release' }
 WCAutoGeoHashWebApp >> start [
 
-	
 	db := WCGeoHashHttpRetriver new baseUrl:
 		      (WCUrl new addToPath: 'WCGeohashWebApp/data').
 	(document getElementById: 'goTo') addEventListener: #click block: [
@@ -187,16 +183,9 @@ WCAutoGeoHashWebApp >> start [
 	(self componentNamed: #map)
 		on: #moveend
 		do: [ :e |
-			| lon lat offset |
-			lon := e target getCenter lng.
-			offset := 0.
-			[ lon > 180 ] whileTrue: [
-				offset := offset + 1.
-				lon := lon - 360 ].
-			[ lon < -180 ] whileTrue: [
-				offset := offset - 1.
-				lon := lon + 360 ].
-			lat := e target getCenter lat.
+			| lon lat |
+			lon := e target getCenter wrap lng.
+			lat := e target getCenter wrap lat.
 			(document getElementById: 'lon') value: lon.
 			(document getElementById: 'lat') value: lat ].
 	(self componentNamed: #map) setView: self defaultCoordinates
