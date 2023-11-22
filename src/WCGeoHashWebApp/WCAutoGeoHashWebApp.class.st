@@ -13,7 +13,7 @@ Class {
 WCAutoGeoHashWebApp class >> appClasses [
 
 	<pharoJsSkip>
-	^ super appClasses , { WCCMap  }
+	^ super appClasses , { WCCMap . WCCButton }
 ]
 
 { #category : #accessing }
@@ -67,10 +67,12 @@ WCAutoGeoHashWebApp class >> generateHtmlUsing: html [
 							html div
 								class: 'mb-3';
 								with: [
-									html button
-										class: 'btn btn-primary';
-										id: 'goTo';
-										with: 'Go to' ].
+										self
+							addComponent: (WCCButton new
+									 label: 'Go to';
+									 yourself)
+							named: #goTo
+							on: html. ].
 							html div
 								class: 'form-check form-switch';
 								with: [
@@ -173,21 +175,18 @@ WCAutoGeoHashWebApp >> start [
 
 	db := WCGeoHashHttpRetriver new baseUrl:
 		      (WCUrl new addToPath: 'WCGeohashWebApp/data').
-	(document getElementById: 'goTo') addEventListener: #click block: [
+	(self componentNamed: #goTo) onClick: [
 		| lon lat |
 		lon := (document getElementById: 'lon') value asNumber.
 		lat := (document getElementById: 'lat') value asNumber.
 		(self componentNamed: #map) setView: lat @ lon ].
 	(self componentNamed: #map)
 		on: #moveend
-		do: [ :e | self calculate ].
-	(self componentNamed: #map)
-		on: #moveend
-		do: [ :e |
-			| lon lat |
+		do: [ :e | 	| lon lat |self calculate.
 			lon := e target getCenter wrap lng.
 			lat := e target getCenter wrap lat.
 			(document getElementById: 'lon') value: lon.
-			(document getElementById: 'lat') value: lat ].
+			(document getElementById: 'lat') value: lat  ].
+	
 	(self componentNamed: #map) setView: self defaultCoordinates
 ]
