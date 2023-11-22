@@ -111,9 +111,9 @@ WCGeoHashWebApp >> initialize [
 { #category : #'initialize-release' }
 WCGeoHashWebApp >> start [
 
-	| layers gh |
+	|  gh |
 	gh := WCGeoHash hashFor: 0 @ 0 precision: 5.
-	layers := OrderedCollection new.
+
 	(self componentNamed: #map)
 		on: #moveend
 		do: [ :e |
@@ -130,12 +130,12 @@ WCGeoHashWebApp >> start [
 			precision := (document getElementById: 'precision') value asNumber.
 			gh := WCGeoHash hashFor: lat @ lon precision: precision.
 			(document getElementById: 'result') innerHTML: gh stringAddress.
-			layers do: [ :aLayer | aLayer remove ].
-			layers removeAll.
+			
+			(self componentNamed: #map) removeAllLayers .
 			gh allNeighbours do: [ :aGh |
 				| b |
 				b := aGh bounds translateBy: 0 @ (360 * offset).
-				layers add: ((self componentNamed: #map)
+				 ((self componentNamed: #map)
 						 polygon: {
 								 b topLeft.
 								 b topRight.
@@ -144,12 +144,12 @@ WCGeoHashWebApp >> start [
 						 with: { (#color -> #green) } asDictionary) ].
 
 			bounds := gh bounds translateBy: 0 @ (360 * offset).
-			layers add: ((self componentNamed: #map) polygon: {
+			 ((self componentNamed: #map) polygon: {
 						 bounds topLeft.
 						 bounds topRight.
 						 bounds bottomRight.
 						 bounds bottomLeft }).
-			layers add: ((self componentNamed: #map) addMarker:
+			((self componentNamed: #map) addMarker:
 					 (gh center translateBy: 0 @ (360 * offset))).
 			(document getElementById: 'lon') value: lon.
 			(document getElementById: 'lat') value: lat ].

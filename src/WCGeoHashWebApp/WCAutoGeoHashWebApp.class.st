@@ -4,8 +4,7 @@ Class {
 	#traits : 'StaticComponentHolder',
 	#classTraits : 'StaticComponentHolder classTrait',
 	#instVars : [
-		'db',
-		'layers'
+		'db'
 	],
 	#category : #WCGeoHashWebApp
 }
@@ -89,6 +88,7 @@ WCAutoGeoHashWebApp class >> generateHtmlUsing: html [
 								with: [
 									html checkbox
 										class: 'form-check-input';
+										checked;
 										id: 'debug'.
 									html label
 										class: 'form-check-label';
@@ -123,18 +123,16 @@ WCAutoGeoHashWebApp >> calculate [
 	region := (self componentNamed: #map) getBounds.
 	regions := WCGeoHash divideRegion: region.
 	ghs := WCGeoHash hashesCoverRegion: region precision: 9.
-	layers do: [ :aLayer | aLayer remove ].
-	layers removeAll.
+	(self componentNamed: #map) removeAllLayers.
 	ghs do: [ :aGh |
 		db getObjectsIn: aGh do: [ :add :object |
 			| marker |
 			marker := (self componentNamed: #map) addMarker: add center.
-			marker bindPopup: object.
-			layers add: marker ].
+			marker bindPopup: object ].
 		adresses := adresses , ' ' , aGh stringAddress ].
 	(document getElementById: 'result') innerHTML: adresses.
 	(document getElementById: 'debug') checked ifTrue: [
-		self drawDebug: regions andGH: ghs inLayers: layers ].
+		self drawDebug: regions andGH: ghs ].
 	(document getElementById: 'lon') value: lon.
 	(document getElementById: 'lat') value: lat
 ]
@@ -146,11 +144,11 @@ WCAutoGeoHashWebApp >> defaultCoordinates [
 ]
 
 { #category : #'initialize-release' }
-WCAutoGeoHashWebApp >> drawDebug: regions andGH: ghs inLayers: layers [
+WCAutoGeoHashWebApp >> drawDebug: regions andGH: ghs [ 
 
 	regions do: [ :aRow |
 		aRow do: [ :aRect |
-			layers add: ((self componentNamed: #map)
+			 ((self componentNamed: #map)
 					 polygon: {
 							 aRect topLeft.
 							 aRect topRight.
@@ -158,7 +156,7 @@ WCAutoGeoHashWebApp >> drawDebug: regions andGH: ghs inLayers: layers [
 							 aRect bottomLeft }
 					 with: { (#color -> #green) } asDictionary) ] ].
 	ghs do: [ :gh |
-		layers add: ((self componentNamed: #map) polygon: {
+		 ((self componentNamed: #map) polygon: {
 					 gh bounds topLeft.
 					 gh bounds topRight.
 					 gh bounds bottomRight.
@@ -175,7 +173,7 @@ WCAutoGeoHashWebApp >> initialize [
 { #category : #'initialize-release' }
 WCAutoGeoHashWebApp >> start [
 
-	layers := OrderedCollection new.
+	
 	db := WCGeoHashHttpRetriver new baseUrl:
 		      (WCUrl new addToPath: 'WCGeohashWebApp/data').
 	(document getElementById: 'goTo') addEventListener: #click block: [
@@ -185,9 +183,7 @@ WCAutoGeoHashWebApp >> start [
 		(self componentNamed: #map) setView: lat @ lon ].
 	(self componentNamed: #map)
 		on: #moveend
-		do: [ :e |
-			self calculate
-			 ].
+		do: [ :e | self calculate ].
 	(self componentNamed: #map)
 		on: #moveend
 		do: [ :e |
