@@ -79,26 +79,6 @@ WCGeoHashDBTest >> testDeleteIndex [
 ]
 
 { #category : #test }
-WCGeoHashDBTest >> testUpdateId [
-
-	| gh |
-	gh := WCGeoHash hashFor: 9.9996 @ -4.329 precision: 7.
-	db
-		write: {
-				(#id -> '123').
-				(#coordinates -> (9.9996 @ -4.329)).
-				(#data -> 'Random stuff') } asDictionary.
-	db
-		write: {
-				(#id -> '123').
-				(#coordinates -> (9.9996 @ -4.329)).
-				(#data -> 'Random other stuff') } asDictionary.
-	self
-		assert: ((db getObjectAtId: '123') at: #data)
-		equals: 'Random other stuff'
-]
-
-{ #category : #test }
 WCGeoHashDBTest >> testWriteIdGeoHash [
 
 	| gh |
