@@ -42,11 +42,11 @@ WCGeoHashDB >> coords: anObject [
 ]
 
 { #category : #'as yet unclassified' }
-WCGeoHashDB >> createIndexIds: ids coordinates: coords precision: anInteger [ 
-	self allObjectsDo: [ :object | |aGh|
-			aGh := WCGeoHash hashFor: (object at: coords) precision: anInteger.
-		self addToIndexAt: aGh id: (object at: ids) ].
-	
+WCGeoHashDB >> createIndex [
+	self allObjectsDo: [ :object |
+		| aGh |
+		aGh := WCGeoHash hashFor: (object at: coords) precision: precision.
+		self addToIndexAt: aGh id: (object at: ids) ]
 ]
 
 { #category : #writing }

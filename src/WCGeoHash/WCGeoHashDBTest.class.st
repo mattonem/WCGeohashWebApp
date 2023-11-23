@@ -30,16 +30,15 @@ WCGeoHashDBTest >> testCreateIndex [
 
 	| gh |
 	gh := WCGeoHash hashFor: 9.9996 @ -4.329 precision: 7.
-	db
-		write: {
-				(#id -> '123').
-				(#coordinates -> (9.9996 @ -4.329)).
-				(#data -> 'some cool stuff') } asDictionary.
+	db write: {
+			(#id -> '123').
+			(#coordinates -> (9.9996 @ -4.329)).
+			(#data -> 'some cool stuff') } asDictionary.
 	self assert: (db getIndexAt: gh) size equals: 1.
 	self assert: (db getIndexAt: gh parent) size equals: 1.
 	db deleteIndex.
 	self assert: (db getIndexAt: gh) size equals: 0.
-	db createIndexIds: #id coordinates: #coordinates precision: 7.
+	db createIndex.
 	self assert: (db getIndexAt: gh) size equals: 1.
 	self assert: (db getIndexAt: gh parent) size equals: 1
 ]
