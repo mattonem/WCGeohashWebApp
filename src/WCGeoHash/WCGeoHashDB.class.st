@@ -127,8 +127,12 @@ WCGeoHashDB >> rootFolder: anObject [
 { #category : #writing }
 WCGeoHashDB >> write: anObject [ 
 
-	self writeObject: anObject id: (anObject at: ids) geoHash: (WCGeoHash hashFor: (anObject at: coords) precision: precision) .
-	self addToIndexAt: (WCGeoHash hashFor: (anObject at: coords) precision: precision) id: (anObject at: ids)
+ | id coordinates |
+id := ((anObject respondsTo: ids) ifTrue: [anObject perform: ids] ifFalse:[anObject at: ids]).
+coordinates := ((anObject respondsTo: coords) ifTrue: [anObject perform: coords] ifFalse:[anObject at: coords]).
+
+	self writeObject: anObject id: id geoHash: (WCGeoHash hashFor: coordinates precision: precision) .
+	self addToIndexAt: (WCGeoHash hashFor: coordinates precision: precision) id: id
 ]
 
 { #category : #writing }
