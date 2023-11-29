@@ -43,10 +43,18 @@ WCGeoHashDB >> coords: anObject [
 
 { #category : #'as yet unclassified' }
 WCGeoHashDB >> createIndex [
+
 	self allObjectsDo: [ :object |
-		| aGh |
-		aGh := WCGeoHash hashFor: (object at: coords) precision: precision.
-		self addToIndexAt: aGh id: (object at: ids) ]
+		| aGh id coordinates|
+		
+			id := (object respondsTo: ids)
+		      ifTrue: [ object perform: ids ]
+		      ifFalse: [ object at: ids ].
+	coordinates := (object respondsTo: coords)
+		               ifTrue: [ object perform: coords ]
+		               ifFalse: [ object at: coords ].
+		aGh := WCGeoHash hashFor: coordinates precision: precision.
+		self addToIndexAt: aGh id: id ]
 ]
 
 { #category : #writing }
